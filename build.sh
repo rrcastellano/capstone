@@ -5,8 +5,9 @@ set -o errexit
 pip install -r requirements.txt
 
 # Create compiled translation files
-python compile_translations.py  # Run the manual script if it exists, or... but wait, I deleted it.
-# Actually, I deleted compile_translations.py. I should probably restore it OR use django-admin compilemessages if gettext is available on Render (it usually is).
+# python compile_translations.py - Removed because we use standard tools on server or rely on committed .mo files
+# Optional: python manage.py compilemessages (if gettext is available)
+
 # Render has gettext installed by default in their Python environment? Not always guaranteed.
 # Let's rely on the fact that I already committed the .mo files?
 # If the .mo files are in the repo, I don't need to run compilemessages on build.
