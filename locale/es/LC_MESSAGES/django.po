@@ -1,0 +1,347 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "R$"
+msgstr "$"
+
+msgid "pt-BR"
+msgstr "es"
+
+msgid "Dashboard"
+msgstr "Panel"
+
+msgid "Nova Recarga"
+msgstr "Nueva Recarga"
+
+msgid "Histórico"
+msgstr "Historial"
+
+msgid "Importar"
+msgstr "Importar"
+
+msgid "Configurações"
+msgstr "Configuraciones"
+
+msgid "Contato"
+msgstr "Contacto"
+
+msgid "Sair"
+msgstr "Salir"
+
+msgid "Login"
+msgstr "Acceso"
+
+msgid "Registrar"
+msgstr "Registro"
+
+msgid "Preencha o formulário abaixo para nos enviar uma mensagem."
+msgstr "Complete el formulario para enviarnos un mensaje."
+
+msgid "Entre em Contato"
+msgstr "Contáctanos"
+
+msgid "Recargas"
+msgstr "Recargas"
+
+msgid "Recargas Isentas"
+msgstr "Recargas Gratuitas"
+
+msgid "Recargas Pagas"
+msgstr "Recargas Pagadas"
+
+msgid "Km Rodados"
+msgstr "Km Recorridos"
+
+msgid "Consumo / 100Km"
+msgstr "Consumo / 100Km"
+
+msgid "Custo Médio / kWh"
+msgstr "Costo Promedio / kWh"
+
+msgid "Custo Médio / Km"
+msgstr "Costo Promedio / Km"
+
+msgid "Custo Gasolina / Km"
+msgstr "Costo Gasolina / Km"
+
+msgid "Custo Total"
+msgstr "Costo Total"
+
+msgid "Recargas Isentas (R$)"
+msgstr "Recargas Gratuitas ($)"
+
+msgid "Recargas Pagas (R$)"
+msgstr "Recargas Pagadas ($)"
+
+msgid "Consumo Total"
+msgstr "Consumo Total"
+
+msgid "Economia (Custo)"
+msgstr "Ahorro (Costo)"
+
+msgid "Economia (Custo) / Km"
+msgstr "Ahorro (Costo) / Km"
+
+msgid "Economia (Pagas)"
+msgstr "Ahorro (Pagadas)"
+
+msgid "Economia (Pagas) / Km"
+msgstr "Ahorro (Pagadas) / Km"
+
+msgid "Custos por Mês"
+msgstr "Costos por Mes"
+
+msgid "Valores Economizados por Mês"
+msgstr "Ahorros por Mes"
+
+msgid "Consumo por Mês (kWh)"
+msgstr "Consumo por Mes (kWh)"
+
+msgid "Km Rodados por Mês"
+msgstr "Km Recorridos por Mes"
+
+msgid "Custo Total (R$)"
+msgstr "Costo Total ($)"
+
+msgid "% Pagas sobre Total"
+msgstr "% Pagadas sobre Total"
+
+msgid "kWh no mês"
+msgstr "kWh / Mes"
+
+msgid "Km no mês"
+msgstr "Km / Mes"
+
+msgid "Km"
+msgstr "Km"
+
+msgid "Economia Total (R$)"
+msgstr "Ahorro Total ($)"
+
+msgid "Economia (Pagas) (R$)"
+msgstr "Ahorro (Pagadas) ($)"
+
+msgid "kWh / 100Km"
+msgstr "kWh / 100Km"
+
+msgid "2025 Gestão de Recargas"
+msgstr "2025 Gestión de Recargas"
+
+msgid "Nome"
+msgstr "Nombre"
+
+msgid "Email"
+msgstr "Correo"
+
+msgid "Mensagem"
+msgstr "Mensaje"
+
+msgid "Seu nome"
+msgstr "Tu Nombre"
+
+msgid "Seu e-mail"
+msgstr "Tu Correo"
+
+msgid "Sua mensagem"
+msgstr "Tu Mensaje"
+
+msgid "Preço da Gasolina (R$)"
+msgstr "Precio Gasolina ($)"
+
+msgid "Preço Gasolina (R$)"
+msgstr "Precio Gasolina ($)"
+
+msgid "Consumo Gasolina (Km/l)"
+msgstr "Consumo Gasolina (Km/l)"
+
+msgid "Nome (Primeiro Nome)"
+msgstr "Nombre (Primer Nombre)"
+
+msgid "Data"
+msgstr "Fecha"
+
+msgid "Odômetro"
+msgstr "Odómetro"
+
+msgid "Custo"
+msgstr "Costo"
+
+msgid "Isento"
+msgstr "Exento"
+
+msgid "Observações"
+msgstr "Notas"
+
+msgid "Local"
+msgstr "Ubicación"
+
+msgid "Opcional..."
+msgstr "Opcional..."
+
+msgid "Histórico de Recargas"
+msgstr "Historial de Recargas"
+
+msgid "Filtros"
+msgstr "Filtros"
+
+msgid "Data Início"
+msgstr "Fecha Inicio"
+
+msgid "Data Fim"
+msgstr "Fecha Fin"
+
+msgid "Aplicar Filtro"
+msgstr "Aplicar Filtro"
+
+msgid "Limpar"
+msgstr "Limpiar"
+
+msgid "Últimos 30 dias"
+msgstr "Últimos 30 Días"
+
+msgid "Exportar CSV"
+msgstr "Exportar CSV"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Ações"
+msgstr "Acciones"
+
+msgid "Pago"
+msgstr "Pagado"
+
+msgid "Nenhuma recarga registrada."
+msgstr "Ninguna recarga registrada."
+
+msgid "Tem certeza que deseja excluir esta recarga?"
+msgstr "¿Estás seguro de que deseas eliminar esta recarga?"
+
+msgid "Importar Recargas via CSV"
+msgstr "Importar Recargas vía CSV"
+
+msgid "Instruções"
+msgstr "Instrucciones"
+
+msgid "O arquivo CSV deve conter os seguintes cabeçalhos (ordem não importa):"
+msgstr "El archivo CSV debe contener los siguientes encabezados (orden no importa):"
+
+msgid "Selecione o arquivo CSV"
+msgstr "Seleccionar archivo CSV"
+
+msgid "Importar"
+msgstr "Importar"
+
+msgid "Configurações da Conta"
+msgstr "Configuraciones de la Cuenta"
+
+msgid "Salvar Configurações"
+msgstr "Guardar Configuraciones"
+
+msgid "Consumo Médio (km/l)"
+msgstr "Consumo Promedio (km/l)"
+
+msgid "Zona de Perigo"
+msgstr "Zona de Peligro"
+
+msgid "Apagar todos os dados"
+msgstr "Borrar todos los datos"
+
+msgid "Esta ação não pode ser desfeita. Isso excluirá permanentemente todo o seu histórico de recargas."
+msgstr "Esta acción no se puede deshacer. Borrará permanentemente todo su historial de recargas."
+
+msgid "Tem certeza ABSOLUTA? Esta ação irá apagar TODOS os dados de recarga e não pode ser desfeita."
+msgstr "¿Estás ABSOLUTAMENTE seguro? Esta acción borrará TODOS los datos de recarga y no se puede deshacer."
+
+msgid "Apagar Tudo"
+msgstr "Borrar Todo"
+
+msgid "Salvar Recarga"
+msgstr "Guardar Recarga"
+
+msgid "Editar Recarga"
+msgstr "Editar Recarga"
+
+msgid "Enviar"
+msgstr "Enviar"
+
+msgid "E-mail"
+msgstr "Correo"
+
+msgid "Todos"
+msgstr "Todos"
+
+msgid "Senha"
+msgstr "Contraseña"
+
+msgid "Usuário / Email"
+msgstr "Usuario / Correo"
+
+msgid "Entrar"
+msgstr "Entrar"
+
+msgid "Não tem conta?"
+msgstr "¿No tienes cuenta?"
+
+msgid "Cadastre-se"
+msgstr "Regístrate"
+
+msgid "Já tem conta?"
+msgstr "¿Ya tienes cuenta?"
+
+msgid "Faça login"
+msgstr "Inicia sesión"
+
+msgid "Quantidade de recargas registradas no período."
+msgstr "Cantidad de recargas registradas en el período."
+
+msgid "Recargas gratuitas."
+msgstr "Recargas gratuitas."
+
+msgid "Recargas pagas."
+msgstr "Recargas pagadas."
+
+msgid "Diferença entre o último e o primeiro odômetro no período."
+msgstr "Diferencia entre el último y primer odómetro en el período."
+
+msgid "Somatório de kWh ÷ Total de km × 100."
+msgstr "Suma de kWh ÷ Total de km × 100."
+
+msgid "Custo total ÷ kWh total."
+msgstr "Costo total ÷ kWh total."
+
+msgid "Custo total ÷ km recorridos."
+msgstr "Costo total ÷ km recorridos."
+
+msgid "Preço da gasolina ÷ consumo (km/l)."
+msgstr "Precio de gasolina ÷ consumo (km/l)."
+
+msgid "Somatório dos custos (inclui isentas)."
+msgstr "Suma de costos (incluye gratuitos)."
+
+msgid "Somatório do custo com isento."
+msgstr "Suma de costos con exenciones."
+
+msgid "Somatório de kWh (isentas e pagas)."
+msgstr "Suma de kWh (gratuitas y pagadas)."
+
+msgid "Custo simulado da gasolina − Custo total."
+msgstr "Costo simulado de gasolina − Costo total."
+
+msgid "Economia total ÷ km rodados."
+msgstr "Ahorro total ÷ km recorridos."
+
+msgid "Custo simulado da gasolina − Custo das recargas pagas."
+msgstr "Costo simulado de gasolina − Costo de recargas pagadas."
+
+msgid "Economia (pagas) ÷ km rodados."
+msgstr "Ahorro (pagadas) ÷ km recorridos."
+
+msgid "Escolher Arquivo"
+msgstr "Seleccionar Archivo"
+
+msgid "Nenhum arquivo escolhido"
+msgstr "Ningún archivo seleccionado"

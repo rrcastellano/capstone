@@ -1,0 +1,61 @@
+{% extends 'core/layout.html' %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+<h2 class="page-title mb-4"><i class="fa fa-user-cog me-2"></i> {% trans "Configurações da Conta" %}</h2>
+<form method="POST" action="{% url 'settings' %}">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label for="preco_gasolina" class="form-label">{% trans "Preço Gasolina (R$)" %}</label>
+    {{ form.preco_gasolina }}
+  </div>
+  <div class="mb-3">
+    <label for="consumo_km_l" class="form-label">{% trans "Consumo Médio (km/l)" %}</label>
+    {{ form.consumo_km_l }}
+  </div>
+  <button type="submit" class="btn btn-primary">{% trans "Salvar Configurações" %}</button>
+</form>
+
+<hr class="my-5">
+
+<div class="card border-danger">
+  <div class="card-header bg-danger text-white">
+    <i class="fas fa-exclamation-triangle"></i> {% trans "Zona de Perigo" %}
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">{% trans "Apagar todos os dados" %}</h5>
+    <p class="card-text">{% trans "Esta ação não pode ser desfeita. Isso excluirá permanentemente todo o seu histórico de recargas." %}</p>
+    <form method="POST" action="{% url 'delete_all_recharges' %}"
+      onsubmit="return confirm('{% trans 'Tem certeza ABSOLUTA? Esta ação irá apagar TODOS os dados de recarga e não pode ser desfeita.' %}' );">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">{% trans "Apagar Tudo" %}</button>
+    </form>
+  </div>
+</div>
+
+
+<script>
+  // Normaliza vírgula -> ponto antes de enviar ao servidor
+  document.querySelector('form').addEventListener('submit', function (e) {
+    const preco = document.getElementById('id_preco_gasolina');
+    const consumo = document.getElementById('id_consumo_km_l');
+
+    function normalizeDecimal(input) {
+      if (input && typeof input.value === 'string') {
+        input.value = input.value.trim().replace(',', '.');
+      }
+    }
+
+    normalizeDecimal(preco);
+    normalizeDecimal(consumo);
+
+    // Validação mínima no cliente: precisa ser > 0
+    const p = parseFloat(preco.value);
+    const c = parseFloat(consumo.value);
+    if (isNaN(p) || p <= 0 || isNaN(c) || c <= 0) {
+      // e.preventDefault(); // Let Django handle validation for now or improve this
+      // alert("Preencha valores decimais maiores que 0 para ambos os campos.");
+    }
+  });
+</script>
+{% endblock %}

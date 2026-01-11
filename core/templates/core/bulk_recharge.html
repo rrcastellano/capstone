@@ -1,0 +1,41 @@
+{% extends 'core/layout.html' %}
+{% load i18n %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="page-title mb-4"><i class="fa fa-file-csv me-2"></i> {% trans "Importar Recargas via CSV" %}</h2>
+
+        <div class="alert alert-info">
+            <h5>{% trans "Instruções" %}</h5>
+            <p>{% trans "O arquivo CSV deve conter os seguintes cabeçalhos (ordem não importa):" %}</p>
+            <ul>
+                <li><code>data</code> (AAAA-MM-DD HH:MM)</li>
+                <li><code>kwh</code> (12.5)</li>
+                <li><code>custo</code> (30.00)</li>
+                <li><code>odometro</code> (15000)</li>
+                <li><code>isento</code> (true/false ou 1/0)</li>
+                <li><code>observacoes</code> (Texto opcional)</li>
+            </ul>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">{% trans "Selecione o arquivo CSV" %}</label>
+                <div class="input-group">
+                    <label class="input-group-text btn btn-secondary" for="file">
+                        {% trans "Escolher Arquivo" %}
+                    </label>
+                    <input type="file" class="form-control d-none" id="file" name="file" required accept=".csv"
+                        onchange="document.getElementById('file-name').textContent = this.files[0] ? this.files[0].name : document.getElementById('file-name').dataset.default;">
+                    <span class="form-control text-muted" id="file-name"
+                        data-default="{% trans 'Nenhum arquivo escolhido' %}">{% trans "Nenhum arquivo escolhido"
+                        %}</span>
+                </div>
+            </div>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">{% trans "Importar" %}</button>
+    </form>
+</div>
+</div>
+{% endblock %}
