@@ -18,3 +18,6 @@ pip install -r requirements.txt
 
 python manage.py collectstatic --no-input
 python manage.py migrate
+
+# Create superuser from environment variables (if set)
+python create_superuser_prod.py
