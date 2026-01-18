@@ -43,6 +43,12 @@ INSTALLED_APPS = [
     'core',
 ]
 
+# Cookie Settings for Cross-Origin (App -> API)
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+
 MIDDLEWARE = [
     'core.cors_middleware.SimpleCorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
