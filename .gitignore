@@ -13,6 +13,7 @@ staticfiles/
 # User requests
 create_db.py
 create_superuser.py
+create_capstone_docx.py
 
 # OS generated files
 .DS_Store

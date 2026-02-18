@@ -1,0 +1,68 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Host api.render.com:443 was resolved.
+* IPv6: (none)
+* IPv4: 216.24.57.6, 216.24.57.250
+*   Trying 216.24.57.6:443...
+* Connected to api.render.com (216.24.57.6) port 443
+* ALPN: curl offers h2,http/1.1
+* (304) (OUT), TLS handshake, Client hello (1):
+} [319 bytes data]
+*  CAfile: /etc/ssl/cert.pem
+*  CApath: none
+* (304) (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* (304) (IN), TLS handshake, Unknown (8):
+{ [19 bytes data]
+* (304) (IN), TLS handshake, Certificate (11):
+{ [2519 bytes data]
+* (304) (IN), TLS handshake, CERT verify (15):
+{ [78 bytes data]
+* (304) (IN), TLS handshake, Finished (20):
+{ [36 bytes data]
+* (304) (OUT), TLS handshake, Finished (20):
+} [36 bytes data]
+* SSL connection using TLSv1.3 / AEAD-CHACHA20-POLY1305-SHA256 / [blank] / UNDEF
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=api.render.com
+*  start date: Feb 14 18:51:53 2026 GMT
+*  expire date: May 15 19:51:52 2026 GMT
+*  subjectAltName: host "api.render.com" matched cert's "api.render.com"
+*  issuer: C=US; O=Google Trust Services; CN=WE1
+*  SSL certificate verify ok.
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://api.render.com/v1/services/srv-d5hvdqmr433s73c1hpo0/logs?limit=100
+* [HTTP/2] [1] [:method: GET]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: api.render.com]
+* [HTTP/2] [1] [:path: /v1/services/srv-d5hvdqmr433s73c1hpo0/logs?limit=100]
+* [HTTP/2] [1] [user-agent: curl/8.7.1]
+* [HTTP/2] [1] [accept: */*]
+* [HTTP/2] [1] [authorization: Bearer rnd_JuyhfW3kBG2izP1sTJtjD1FQSf9z]
+> GET /v1/services/srv-d5hvdqmr433s73c1hpo0/logs?limit=100 HTTP/2
+> Host: api.render.com
+> User-Agent: curl/8.7.1
+> Accept: */*
+> Authorization: Bearer rnd_JuyhfW3kBG2izP1sTJtjD1FQSf9z
+> 
+* Request completely sent off
+< HTTP/2 404 
+< date: Wed, 18 Feb 2026 18:21:15 GMT
+< content-type: text/plain; charset=utf-8
+< content-length: 19
+< cf-ray: 9cff8b0d5a13c089-GRU
+< referrer-policy: same-origin
+< render-request-id: api-7c8b67587d-59ltr/Sc95t2Ce7O-483990
+< strict-transport-security: max-age=315360000; includeSubDomains; preload
+< vary: Origin
+< x-content-type-options: nosniff
+< x-frame-options: DENY
+< x-xss-protection: 1; mode=block
+< cf-cache-status: DYNAMIC
+< server: cloudflare
+< alt-svc: h3=":443"; ma=86400
+< 
+{ [19 bytes data]
+100    19  100    19    0     0     79      0 --:--:-- --:--:-- --:--:--    78100    19  100    19    0     0     78      0 --:--:-- --:--:-- --:--:--    78
+* Connection #0 to host api.render.com left intact
