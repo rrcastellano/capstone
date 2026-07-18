@@ -152,6 +152,22 @@ def validate_csv_and_parse(file_storage):
             isento_raw = (row.get('isento') or "").strip().lower()
             isento = isento_raw in ["true", "1", "sim", "yes", "y"]
 
+            latitude = None
+            try:
+                lat_str = row.get('latitude') or row.get('lat')
+                if lat_str and lat_str.strip():
+                    latitude = float(lat_str.strip().replace(',', '.'))
+            except Exception:
+                pass
+
+            longitude = None
+            try:
+                lon_str = row.get('longitude') or row.get('lon') or row.get('lng')
+                if lon_str and lon_str.strip():
+                    longitude = float(lon_str.strip().replace(',', '.'))
+            except Exception:
+                pass
+
             rows_validos.append({
                 'data': dt,
                 'kwh': kwh,
@@ -160,6 +176,8 @@ def validate_csv_and_parse(file_storage):
                 'isento': isento,
                 'observacoes': observacoes,
                 'local': local,
+                'latitude': latitude,
+                'longitude': longitude,
             })
         except ValueError as ve:
             err_msgs.append(_(f"Linha {line_num}: {ve}"))
@@ -200,7 +218,9 @@ def bulk_recharge(request):
                     isento=r['isento'],
                     odometro=r['odometro'],
                     observacoes=r.get('observacoes', ''),
-                    local=r.get('local', '')
+                    local=r.get('local', ''),
+                    latitude=r.get('latitude'),
+                    longitude=r.get('longitude')
                 )
                 count += 1
             except Exception as e:
@@ -283,7 +303,7 @@ def manage_recharges(request):
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         writer = csv.writer(response)
-        writer.writerow(['Data', 'Local', 'kWh', 'Custo', 'Odometro', 'Isento', 'Observacoes'])
+        writer.writerow(['Data', 'Local', 'kWh', 'Custo', 'Odometro', 'Isento', 'Observacoes', 'Latitude', 'Longitude'])
 
         for r in recharge_list:
             writer.writerow([
@@ -293,7 +313,9 @@ def manage_recharges(request):
                 r.custo,
                 r.odometro,
                 str(r.isento),
-                r.observacoes or ""
+                r.observacoes or "",
+                r.latitude if r.latitude is not None else "",
+                r.longitude if r.longitude is not None else ""
             ])
         return response
 

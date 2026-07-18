@@ -54,6 +54,8 @@ def api_recharge_list(request):
                 "odometro": r.odometro,
                 "observacoes": r.observacoes,
                 "local": r.local,
+                "latitude": r.latitude,
+                "longitude": r.longitude,
             })
         return JsonResponse(data, safe=False)
     
@@ -68,7 +70,9 @@ def api_recharge_list(request):
                 isento=body.get("isento", False),
                 odometro=float(body.get("odometro", 0)),
                 observacoes=body.get("observacoes", ""),
-                local=body.get("local", "")
+                local=body.get("local", ""),
+                latitude=float(body.get("latitude")) if body.get("latitude") is not None else None,
+                longitude=float(body.get("longitude")) if body.get("longitude") is not None else None,
             )
             return JsonResponse({"status": "success", "id": recharge.id})
         except Exception as e:
@@ -92,6 +96,8 @@ def api_recharge_detail(request, pk):
             "odometro": recharge.odometro,
             "observacoes": recharge.observacoes,
             "local": recharge.local,
+            "latitude": recharge.latitude,
+            "longitude": recharge.longitude,
         })
     
     elif request.method == "PUT":
@@ -104,6 +110,10 @@ def api_recharge_detail(request, pk):
             recharge.odometro = float(body.get("odometro", recharge.odometro))
             recharge.observacoes = body.get("observacoes", recharge.observacoes)
             recharge.local = body.get("local", recharge.local)
+            if "latitude" in body:
+                recharge.latitude = float(body["latitude"]) if body["latitude"] is not None else None
+            if "longitude" in body:
+                recharge.longitude = float(body["longitude"]) if body["longitude"] is not None else None
             recharge.save()
             return JsonResponse({"status": "success"})
         except Exception as e:

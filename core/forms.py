@@ -54,7 +54,7 @@ class RegisterForm(UserCreationForm):
 class RechargeForm(forms.ModelForm):
     class Meta:
         model = Recharge
-        fields = ['data', 'odometro', 'kwh', 'custo', 'isento', 'observacoes', 'local']
+        fields = ['data', 'odometro', 'kwh', 'custo', 'isento', 'observacoes', 'local', 'latitude', 'longitude']
         labels = {
             'data': _('Data'),
             'odometro': _('Odômetro'),
@@ -63,6 +63,8 @@ class RechargeForm(forms.ModelForm):
             'isento': _('Isento'),
             'observacoes': _('Observações'),
             'local': _('Local'),
+            'latitude': _('Latitude'),
+            'longitude': _('Longitude'),
         }
         widgets = {
             'data': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
@@ -72,4 +74,6 @@ class RechargeForm(forms.ModelForm):
             'isento': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': _('Opcional...')}),
             'local': forms.TextInput(attrs={'class': 'form-control'}),
+            'latitude': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.000001', 'placeholder': _('Opcional...')}),
+            'longitude': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.000001', 'placeholder': _('Opcional...')}),
         }
