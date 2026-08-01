@@ -1,65 +1,112 @@
-/* ===== Variáveis da Paleta de Cores e Fonte ===== */
+/* ===== Variáveis da Paleta de Cores e Fonte (EVChargeLog_AOS Theme) ===== */
 :root {
-  --green-dark: #0F6634;
-  --green-light: #77C556;
-  --white: #FFFFFF;
-  --black: #000000; /* Nova variável para o preto */
-  /* Cores de status adaptadas para a paleta */
-  --blue-primary: #0d6efd; /* Usando blue como primary */
-  --darkgreen-primary: #0F6634; /* Usando green-dark como primary */
-  --green-primary: #198754; /* Usando green como primary */
-  --green-success: #77C556; /* Usando green-light como success */
-  --yellow-warning: #ffc107; /* Mantido amarelo padrão para warning */
-  --orange-accent: #fd7e14; /* Mantido laranja padrão */
-  --red-danger: #dc3545; /* Mantido vermelho padrão para danger */
-
-  --text-color-primary: var(--black); /* Cor principal do texto agora é preta */
-  --text-color-secondary: #555;
-  --background-card: var(--white);
-  --shadow-color: rgba(0, 0, 0, 0.1);
+  --bg-dark: #10150d;         /* Fundo escuro principal */
+  --bg-card: #1c2118;         /* Fundo de cards e contêineres */
+  --bg-card-hover: #232a1f;   /* Hover em cards e linhas */
+  --border-color: #283025;    /* Bordas e separadores verde-oliva */
+  
+  --green-accent: #96e267;    /* Verde lima elétrico (Primary Accent) */
+  --green-accent-hover: #82cc55;
+  --text-primary: #e0e4d6;    /* Off-white / Sage claro (Texto principal) */
+  --text-secondary: #8b9481;  /* Cinza oliva suave (Subtítulos e rótulos) */
+  --text-dark: #10150d;       /* Texto em botões/badges verde lima */
+  
+  --blue-accent: #4da6ff;     /* Azul elétrico */
+  --yellow-accent: #e0a845;   /* Dourado / Amarelo */
+  --red-danger: #e05555;      /* Vermelho destrutivo */
+  --shadow-color: rgba(0, 0, 0, 0.4);
 }
 
 /* ======== Estilo geral ======== */
 body {
-    /*background-color: #f8f9fa;*/
-    background-color: #f4f4f4; /* Um cinza claro suave */
-    font-family: 'Nunito Sans Rounded', sans-serif;
-    color: var(--text-color-primary);
+  background-color: var(--bg-dark);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.5;
 }
 
-
-/* Ajustes para tema Lux */
-.container h2, .container h4, .container h5 {
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-  color: var(--black); /* Títulos em preto */
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
-/* Reduz o padding vertical do navbar principal */
+.page-title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.page-title i {
+  color: var(--green-accent);
+}
+
+/* ======== Navbar ======== */
 .navbar {
-    padding-top: 0.5rem; /* Ajuste este valor conforme necessário, e.g., 0.3rem para menor */
-    padding-bottom: 0.5rem; /* Ajuste este valor conforme necessário */
-}
-
-/* Reduz o padding vertical dos links de navegação dentro do navbar */
-.nav-link {
-    padding-top: 0.4rem; /* Ajuste este valor conforme necessário */
-    padding-bottom: 0.4rem; /* Ajuste este valor conforme necessário */
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  background-color: var(--bg-dark) !important;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-primary) !important;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand img {
+  filter: drop-shadow(0 0 6px rgba(150, 226, 103, 0.3));
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: var(--text-secondary);
   font-weight: 600;
-  letter-spacing: 0.2px;
-  color: var(--white) !important; /* Marca do navbar em branco */
-  text-transform: none; /* Adicione esta linha para evitar maiúsculas */
+  padding: 0.5rem 0.8rem;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  border-radius: 8px;
 }
 
-footer {
-  color: #6c757d;
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active {
+  color: var(--green-accent) !important;
+  background-color: rgba(150, 226, 103, 0.08);
 }
 
-.alert {
-  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.08);
+.navbar-dark .navbar-nav .nav-link i {
+  color: var(--green-accent);
+}
+
+.navbar-toggler {
+  border-color: var(--border-color);
+}
+
+/* ======== Cards ======== */
+.card, .kpi-card, .chart-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover, .kpi-card:hover, .chart-card:hover {
+  border-color: rgba(150, 226, 103, 0.4);
+}
+
+.card-header {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 1.25rem;
+}
+
+.card-body {
+  color: var(--text-primary);
 }
 
 /* ===== KPIs ===== */
@@ -71,74 +118,51 @@ footer {
 
 .kpi-card {
   position: relative;
-  background: var(--background-card);
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px var(--shadow-color);
-  text-align: center;
-  transition: transform 0.2s ease;
-}
-
-.kpi-card:hover {
-  transform: translateY(-4px);
+  padding: 1.2rem;
+  text-align: left;
 }
 
 .kpi-card i {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  display: block;
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+  color: var(--green-accent);
 }
 
 .kpi-card h6 {
-  font-size: 0.9rem;
-  color: var(--text-color-secondary);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
   margin-bottom: 0.3rem;
 }
 
 .kpi-card p {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: var(--black); /* Valor do KPI em preto */
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0;
 }
 
-/* Ícone de informação (popover trigger) */
 .kpi-info {
   position: absolute;
-  right: 0.5rem;
-  top: 0.5rem;
-  color: #888;
+  right: 0.8rem;
+  top: 0.8rem;
+  color: var(--text-secondary);
   cursor: help;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .kpi-info:hover {
-  color: var(--text-color-secondary);
+  color: var(--green-accent);
 }
 
-/* Cores por categoria (adaptado) */
-.kpi-quantidade i { color: var(--blue-primary); } /* Dark Green */
-.kpi-custo i { color: var(--green-primary); }      /* Green */
-.kpi-consumo i { color: var(--yellow-warning); }    /* Amarelo */
-.kpi-economia i { color: var(--orange-accent); }   /* Laranja */
-
-/* ===== Indicadores de tendência ===== */
-.kpi-trend {
-  margin-top: 0.35rem;
-  font-size: 0.85rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
+/* Specific KPI Accents */
+.text-accent {
+  color: var(--green-accent) !important;
 }
 
-.kpi-trend.up { color: var(--green-success); }    /* Light green */
-.kpi-trend.down { color: var(--red-danger); }  /* vermelho */
-.kpi-trend.flat { color: #6c757d; }  /* cinza */
-
-.kpi-trend .value {
-  font-weight: 600;
-}
-
-/* ===== Grid para gráficos do dashboard ===== */
+/* ===== Grid de Gráficos ===== */
 .dashboard-charts {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -147,20 +171,19 @@ footer {
 }
 
 .chart-card {
-  background: var(--background-card);
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px var(--shadow-color);
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .chart-card h6 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.8rem;
-  color: var(--black); /* Título do gráfico em preto */
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  width: 100%;
+  text-align: left;
 }
 
 .chart-container {
@@ -169,7 +192,180 @@ footer {
   position: relative;
 }
 
-/* ===== Responsividade ===== */
+/* ======== Botões ======== */
+.btn {
+  border-radius: 12px;
+  font-weight: 700;
+  padding: 0.55rem 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--green-accent);
+  border-color: var(--green-accent);
+  color: var(--text-dark);
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: var(--green-accent-hover) !important;
+  border-color: var(--green-accent-hover) !important;
+  color: var(--text-dark) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(150, 226, 103, 0.3);
+}
+
+.btn-secondary, .btn-outline-secondary {
+  background-color: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover, .btn-outline-secondary:hover {
+  background-color: var(--bg-card-hover);
+  border-color: var(--green-accent);
+  color: var(--green-accent);
+}
+
+.btn-danger {
+  background-color: var(--red-danger);
+  border-color: var(--red-danger);
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background-color: #c94444;
+  border-color: #c94444;
+}
+
+.btn-success {
+  background-color: var(--green-accent);
+  border-color: var(--green-accent);
+  color: var(--text-dark);
+}
+
+.btn-info {
+  background-color: var(--blue-accent);
+  border-color: var(--blue-accent);
+  color: #ffffff;
+}
+
+/* ======== Form Controls ======== */
+.form-control, .form-select {
+  background-color: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 10px;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: var(--bg-dark);
+  border-color: var(--green-accent);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 0.25rem rgba(150, 226, 103, 0.25);
+}
+
+.form-control::placeholder {
+  color: var(--text-secondary);
+}
+
+.form-label {
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.4rem;
+}
+
+.input-group-text {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+/* ======== Tabelas ======== */
+.table {
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background-color: var(--bg-dark);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.85rem 1rem;
+}
+
+.table tbody tr {
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.table td {
+  padding: 0.85rem 1rem;
+}
+
+/* ======== Badges ======== */
+.badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.4em 0.8em;
+  border-radius: 8px;
+}
+
+.badge.bg-success {
+  background-color: var(--green-accent) !important;
+  color: var(--text-dark) !important;
+}
+
+.badge.bg-secondary {
+  background-color: var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ======== Alerts & Modals ======== */
+.alert {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.alert-info {
+  border-left: 4px solid var(--blue-accent);
+}
+
+.alert-success {
+  border-left: 4px solid var(--green-accent);
+}
+
+.alert-warning {
+  border-left: 4px solid var(--yellow-accent);
+}
+
+.alert-danger {
+  border-left: 4px solid var(--red-danger);
+}
+
+/* ======== Footer ======== */
+footer {
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.5rem;
+}
+
+/* ======== Responsividade ======== */
 @media (max-width: 992px) {
   .kpi-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -183,140 +379,4 @@ footer {
   .kpi-grid {
     grid-template-columns: 1fr;
   }
-}
-
-
-/* ======== Cards ======== */
-.card {
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: var(--background-card);
-}
-.card-header {
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    background-color: var(--white); /* Garante que o header use o background da paleta */
-    color: var(--black); /* Título do card header em preto */
-}
-.card.shadow-sm {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
-
-/* ======== Botões ======== */
-.btn {
-    border-radius: 6px;
-    font-weight: 500;
-    transition: all 0.2s ease-in-out;
-}
-
-/* Adaptação para botões primários do Bootstrap */
-.btn-primary {
-    background-color: var(--darkgreen-primary);
-    border-color: var(--darkgreen-primary);
-}
-
-.btn:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* ======== Tabela ======== */
-.table {
-    font-size: 0.95rem;
-}
-.table thead th {
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-    color: var(--white); /* Cabeçalho da tabela em branco */
-}
-.table-hover tbody tr:hover {
-    background-color: #f1f3f5;
-    cursor: pointer;
-}
-
-/* ======== Paginação ======== */
-.badge {
-    font-size: 0.9rem;
-    padding: 0.5em 0.8em;
-}
-.btn-outline-primary {
-    border-width: 2px;
-    color: var(--darkgreen-primary);
-    border-color: var(--darkgreen-primary);
-}
-.btn-outline-primary:hover {
-    background-color: var(--darkgreen-primary);
-    color: var(--white);
-}
-
-/* ======== Spinner ======== */
-#loading-spinner .spinner-border {
-    width: 3rem;
-    height: 3rem;
-    color: var(--green-dark);
-}
-
-/* ======== Modal ======== */
-.modal-header {
-    font-weight: 600;
-}
-.modal-header.bg-warning {
-    background-color: var(--yellow-warning) !important;
-}
-.modal-header.bg-danger {
-    background-color: var(--red-danger) !important;
-}
-.modal-title i {
-    margin-right: 8px;
-}
-
-/* ======== Toast ======== */
-#toast-container .toast {
-    border-radius: 6px;
-    font-size: 0.9rem;
-    padding: 0.75em 1em;
-}
-
-/* ======== Hover nos cards ======== */
-.filters-bar .card:hover,
-.card.shadow-sm:hover {
-    transform: translateY(-4px);
-    transition: transform 0.2s ease;
-}
-
-/* ======== Responsividade Adicional (Mobile Improvements) ======== */
-
-/* Tipografia Fluida */
-.page-title {
-    font-size: clamp(1.4rem, 4vw, 1.8rem); /* Escala entre 1.4rem e 1.8rem */
-    font-weight: 600;
-    margin-bottom: 2rem;
-    color: var(--black);
-}
-
-/* Gráficos em Mobile */
-@media (max-width: 768px) {
-    .chart-container {
-        height: 250px; /* Reduz altura em telas menores */
-    }
-}
-
-/* Melhora em alvos de toque (Touch Targets) */
-.btn, .form-control, .form-select, .page-link {
-    padding: 0.5rem 0.8rem; /* Aumenta área de toque levemente */
-}
-
-.page-link {
-    font-size: 1rem;
-    padding: 0.5rem 0.85rem;
-}
-
-
-/* ======== Flags ======== */
-/* Defina o tamanho e, opcionalmente, o alinhamento vertical para as bandeiras */
-.flag-icon {
-    width: 24px; /* Tamanho desejado */
-    height: auto; /* Mantém a proporção */
-    vertical-align: middle; /* Alinha verticalmente com o texto */
 }

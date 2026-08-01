@@ -3,15 +3,21 @@
 {% load custom_filters %}
 
 {% block content %}
-<h2 class="page-title mb-4"><i class="fa fa-history me-2"></i> {% trans "Histórico de Recargas" %}</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title m-0"><i class="fas fa-list me-2"></i> {% trans "Histórico de Recargas" %}</h2>
+    <a href="{% url 'recharge' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> {% trans "Nova Recarga" %}
+    </a>
+</div>
 
 <div class="card mb-4">
-    <div class="card-header bg-light" data-bs-toggle="collapse" data-bs-target="#filterCollapse"
-        style="cursor: pointer;">
-        <i class="fas fa-filter me-1"></i> {% trans "Filtros" %}
-        <i class="fas fa-chevron-down float-end mt-1"></i>
+    <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#filterCollapse" style="cursor: pointer;">
+        <div>
+            <i class="fas fa-filter me-2 text-accent"></i> <strong>{% trans "Filtros de Busca" %}</strong>
+        </div>
+        <i class="fas fa-chevron-down text-secondary"></i>
     </div>
-    <div class="collapse" id="filterCollapse">
+    <div class="collapse show" id="filterCollapse">
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <input type="hidden" name="periodo" value="{{ filters.periodo }}">
@@ -42,76 +48,77 @@
                     </select>
                 </div>
 
-                <div class="col-12 mt-3">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> {% trans "Aplicar Filtro" %}</button>
-                    <a href="{% url 'manage_recharges' %}" class="btn btn-secondary ms-2"><i class="fas fa-times"></i>
-                        {% trans "Limpar" %}</a>
-                    <a href="?periodo=30d" class="btn btn-info ms-2 text-white"><i class="fas fa-calendar-alt"></i> {% trans "Últimos 30 dias" %}</a>
-                    <button type="submit" name="export" value="csv" class="btn btn-success ms-2 float-end"><i
-                            class="fas fa-file-csv"></i> {% trans "Exportar CSV" %}</button>
+                <div class="col-12 mt-3 d-flex flex-wrap align-items-center gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i> {% trans "Aplicar Filtro" %}</button>
+                    <a href="{% url 'manage_recharges' %}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> {% trans "Limpar" %}</a>
+                    <a href="?periodo=30d" class="btn btn-secondary"><i class="fas fa-calendar-alt me-1 text-accent"></i> {% trans "Últimos 30 dias" %}</a>
+                    <button type="submit" name="export" value="csv" class="btn btn-secondary ms-auto"><i class="fas fa-file-csv me-1 text-accent"></i> {% trans "Exportar CSV" %}</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>{% trans "Data" %}</th>
-                <th>{% trans "Local" %}</th>
-                <th>{% trans "kWh" %}</th>
-                <th>{% trans "Custo" %}</th>
-                <th class="d-none d-md-table-cell">{% trans "Odômetro" %}</th>
-                <th>{% trans "Status" %}</th>
-                <th class="d-none d-md-table-cell">{% trans "Observações" %}</th>
-                <th>{% trans "Ações" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in recharges %}
-            <tr>
-                <td>{{ r.data|date_fmt }}</td>
-                <td>{{ r.local|default:"-" }}</td>
-                <td>{{ r.kwh }}</td>
-                <td>{{ r.custo|brl }}</td>
-                <td class="d-none d-md-table-cell">{{ r.odometro|default:"-" }}</td>
-                <td>
-                    {% if r.isento %}
-                    <span class="badge bg-success">{% trans "Isento" %}</span>
-                    {% else %}
-                    <span class="badge bg-secondary">{% trans "Pago" %}</span>
-                    {% endif %}
-                </td>
-                <td class="d-none d-md-table-cell">{{ r.observacoes|default:"-" }}</td>
-                <td>
-                    <a href="{% url 'edit_recharge' r.id %}" class="btn btn-sm btn-primary me-2"
-                        title="{% trans 'Editar' %}">
-                        <i class="fa fa-edit"></i>
-                    </a>
-                    <a href="{% url 'delete_recharge' r.id %}" class="btn btn-sm btn-danger"
-                        onclick="return confirm('{% trans 'Tem certeza que deseja excluir esta recarga?' %}');">
-                        <i class="fa fa-trash"></i>
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8" class="text-center text-muted">{% trans "Nenhuma recarga registrada." %}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="card overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>{% trans "Data" %}</th>
+                    <th>{% trans "Local" %}</th>
+                    <th>{% trans "kWh" %}</th>
+                    <th>{% trans "Custo" %}</th>
+                    <th class="d-none d-md-table-cell">{% trans "Odômetro" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th class="d-none d-md-table-cell">{% trans "Observações" %}</th>
+                    <th class="text-end me-2">{% trans "Ações" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in recharges %}
+                <tr>
+                    <td class="fw-semibold">{{ r.data|date_fmt }}</td>
+                    <td>{{ r.local|default:"-" }}</td>
+                    <td class="text-accent fw-bold">{{ r.kwh }} kWh</td>
+                    <td class="fw-bold">{{ r.custo|brl }}</td>
+                    <td class="d-none d-md-table-cell text-secondary">{{ r.odometro|default:"-" }} km</td>
+                    <td>
+                        {% if r.isento %}
+                        <span class="badge bg-success"><i class="fas fa-leaf me-1"></i>{% trans "Isento" %}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{% trans "Pago" %}</span>
+                        {% endif %}
+                    </td>
+                    <td class="d-none d-md-table-cell text-secondary small">{{ r.observacoes|default:"-" }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'edit_recharge' r.id %}" class="btn btn-sm btn-secondary me-1"
+                            title="{% trans 'Editar' %}">
+                            <i class="fas fa-pen-to-square text-accent"></i>
+                        </a>
+                        <a href="{% url 'delete_recharge' r.id %}" class="btn btn-sm btn-secondary"
+                            onclick="return confirm('{% trans 'Tem certeza que deseja excluir esta recarga?' %}');"
+                            title="{% trans 'Excluir' %}">
+                            <i class="fas fa-trash text-danger"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-secondary py-5">{% trans "Nenhuma recarga registrada." %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Pagination -->
 {% if recharges.has_other_pages %}
-<nav aria-label="Navegação de página">
-    <ul class="pagination justify-content-center">
+<nav aria-label="Navegação de página" class="mt-4">
+    <ul class="pagination justify-content-center gap-1">
         {% if recharges.has_previous %}
         <li class="page-item">
-            <a class="page-link"
+            <a class="page-link btn btn-secondary text-primary"
                 href="?page={{ recharges.previous_page_number }}&local={{ filters.local }}&observacoes={{ filters.observacoes }}&isento={{ filters.isento }}&data_inicio={{ filters.data_inicio }}&data_fim={{ filters.data_fim }}&periodo={{ filters.periodo }}"
                 aria-label="Anterior">
                 <span aria-hidden="true">&laquo;</span>
@@ -119,22 +126,22 @@
         </li>
         {% else %}
         <li class="page-item disabled">
-            <span class="page-link">&laquo;</span>
+            <span class="page-link btn btn-secondary disabled">&laquo;</span>
         </li>
         {% endif %}
 
         {% for i in recharges.paginator.page_range %}
         {% if recharges.number == i %}
-        <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+        <li class="page-item active"><span class="page-link btn btn-primary">{{ i }}</span></li>
         {% else %}
-        <li class="page-item"><a class="page-link"
+        <li class="page-item"><a class="page-link btn btn-secondary text-primary"
                 href="?page={{ i }}&local={{ filters.local }}&observacoes={{ filters.observacoes }}&isento={{ filters.isento }}&data_inicio={{ filters.data_inicio }}&data_fim={{ filters.data_fim }}&periodo={{ filters.periodo }}">{{ i }}</a></li>
         {% endif %}
         {% endfor %}
 
         {% if recharges.has_next %}
         <li class="page-item">
-            <a class="page-link"
+            <a class="page-link btn btn-secondary text-primary"
                 href="?page={{ recharges.next_page_number }}&local={{ filters.local }}&observacoes={{ filters.observacoes }}&isento={{ filters.isento }}&data_inicio={{ filters.data_inicio }}&data_fim={{ filters.data_fim }}&periodo={{ filters.periodo }}"
                 aria-label="Próximo">
                 <span aria-hidden="true">&raquo;</span>
@@ -142,11 +149,10 @@
         </li>
         {% else %}
         <li class="page-item disabled">
-            <span class="page-link">&raquo;</span>
+            <span class="page-link btn btn-secondary disabled">&raquo;</span>
         </li>
         {% endif %}
     </ul>
 </nav>
 {% endif %}
-</div>
 {% endblock %}

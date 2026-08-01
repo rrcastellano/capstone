@@ -2,40 +2,42 @@
 {% load i18n %}
 {% load static %}
 {% block content %}
-<h2 class="page-title mb-4"><i class="fa fa-user-cog me-2"></i> {% trans "Configurações da Conta" %}</h2>
-<form method="POST" action="{% url 'settings' %}">
-  {% csrf_token %}
-  <div class="mb-3">
-    <label for="preco_gasolina" class="form-label">{% trans "Preço Gasolina (R$)" %}</label>
-    {{ form.preco_gasolina }}
-  </div>
-  <div class="mb-3">
-    <label for="consumo_km_l" class="form-label">{% trans "Consumo Médio (km/l)" %}</label>
-    {{ form.consumo_km_l }}
-  </div>
-  <button type="submit" class="btn btn-primary">{% trans "Salvar Configurações" %}</button>
-</form>
+<div class="row justify-content-center my-4">
+  <div class="col-md-8 col-lg-7">
+    <h2 class="page-title mb-4"><i class="fas fa-sliders-h me-2"></i> {% trans "Configurações da Conta" %}</h2>
+    
+    <div class="card p-4 mb-5">
+      <h4 class="h5 mb-4 text-accent"><i class="fas fa-gas-pump me-2"></i>{% trans "Parâmetros de Comparação" %}</h4>
+      <form method="POST" action="{% url 'settings' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="preco_gasolina" class="form-label">{% trans "Preço Gasolina (R$)" %}</label>
+          {{ form.preco_gasolina }}
+        </div>
+        <div class="mb-3">
+          <label for="consumo_km_l" class="form-label">{% trans "Consumo Médio (km/l)" %}</label>
+          {{ form.consumo_km_l }}
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">{% trans "Salvar Configurações" %}</button>
+      </form>
+    </div>
 
-<hr class="my-5">
-
-<div class="card border-danger">
-  <div class="card-header bg-danger text-white">
-    <i class="fas fa-exclamation-triangle"></i> {% trans "Zona de Perigo" %}
-  </div>
-  <div class="card-body">
-    <h5 class="card-title">{% trans "Apagar todos os dados" %}</h5>
-    <p class="card-text">{% trans "Esta ação não pode ser desfeita. Isso excluirá permanentemente todo o seu histórico de recargas." %}</p>
-    <form method="POST" action="{% url 'delete_all_recharges' %}"
-      onsubmit="return confirm('{% trans 'Tem certeza ABSOLUTA? Esta ação irá apagar TODOS os dados de recarga e não pode ser desfeita.' %}' );">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-danger">{% trans "Apagar Tudo" %}</button>
-    </form>
+    <div class="card border-danger p-4" style="border: 1px solid var(--red-danger) !important;">
+      <div class="d-flex align-items-center mb-3 text-danger">
+        <i class="fas fa-exclamation-triangle fa-lg me-2"></i>
+        <h5 class="m-0 font-weight-bold">{% trans "Zona de Perigo" %}</h5>
+      </div>
+      <p class="text-secondary small">{% trans "Esta ação não pode ser desfeita. Isso excluirá permanentemente todo o seu histórico de recargas." %}</p>
+      <form method="POST" action="{% url 'delete_all_recharges' %}"
+        onsubmit="return confirm('{% trans 'Tem certeza ABSOLUTA? Esta ação irá apagar TODOS os dados de recarga e não pode ser desfeita.' %}' );">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">{% trans "Apagar Todos os Dados" %}</button>
+      </form>
+    </div>
   </div>
 </div>
 
-
 <script>
-  // Normaliza vírgula -> ponto antes de enviar ao servidor
   document.querySelector('form').addEventListener('submit', function (e) {
     const preco = document.getElementById('id_preco_gasolina');
     const consumo = document.getElementById('id_consumo_km_l');
@@ -48,14 +50,6 @@
 
     normalizeDecimal(preco);
     normalizeDecimal(consumo);
-
-    // Validação mínima no cliente: precisa ser > 0
-    const p = parseFloat(preco.value);
-    const c = parseFloat(consumo.value);
-    if (isNaN(p) || p <= 0 || isNaN(c) || c <= 0) {
-      // e.preventDefault(); // Let Django handle validation for now or improve this
-      // alert("Preencha valores decimais maiores que 0 para ambos os campos.");
-    }
   });
 </script>
 {% endblock %}

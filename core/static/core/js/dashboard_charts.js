@@ -1,5 +1,11 @@
-
 (async function () {
+  // Configurações globais do Chart.js para o tema escuro EVChargeLog_AOS
+  if (window.Chart) {
+    Chart.defaults.color = '#8b9481';
+    Chart.defaults.borderColor = 'rgba(40, 48, 37, 0.5)';
+    Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+  }
+
   // Busca dados agregados por mês
   let apiData;
   try {
@@ -11,7 +17,7 @@
     if (typeof LoadMonthlyDataErrorMessage !== 'undefined') console.error(LoadMonthlyDataErrorMessage, err);
     document.querySelectorAll('.chart-container').forEach(el => {
       const msg = typeof LoadDataUnavailableMessage !== 'undefined' ? LoadDataUnavailableMessage : 'Error loading data';
-      el.innerHTML = `<div class="text-muted">${msg}</div>`;
+      el.innerHTML = `<div class="text-muted text-center pt-5">${msg}</div>`;
     });
     return;
   }
@@ -20,7 +26,7 @@
   if (!apiData || !apiData.labels || apiData.labels.length === 0) {
     document.querySelectorAll('.chart-container').forEach(el => {
       const msg = typeof NoDataToDisplayMessage !== 'undefined' ? NoDataToDisplayMessage : 'No data';
-      el.innerHTML = `<div class="text-muted">${msg}</div>`;
+      el.innerHTML = `<div class="text-muted text-center pt-5">${msg}</div>`;
     });
     return;
   }
@@ -49,201 +55,267 @@
   const LabelPaidSavingsBRL = typeof window.LabelPaidSavingsBRL !== 'undefined' ? window.LabelPaidSavingsBRL : 'Savings (Paid)';
 
   // ============ Gráfico 1: Custos por Mês ============ //
-  new Chart(document.getElementById('chartCustos'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: LabelTotalCostBRL,
-          data: apiData.custos.total,
-          backgroundColor: 'rgba(13,110,253,0.6)',
-          borderColor: 'rgba(13,110,253,1)',
-          borderWidth: 1,
-          yAxisID: 'y'
-        },
-        {
-          label: LabelPaidRechargesBRL,
-          data: apiData.custos.pagas,
-          backgroundColor: 'rgba(25,135,84,0.6)',
-          borderColor: 'rgba(25,135,84,1)',
-          borderWidth: 1,
-          yAxisID: 'y'
-        },
-        {
-          type: 'line',
-          label: LabelPercentPaidOverTotal,
-          data: apiData.custos.percentual,
-          borderColor: 'rgba(255,193,7,1)',
-          backgroundColor: 'rgba(255,193,7,0.2)',
-          tension: 0.25,
-          pointRadius: 3,
-          yAxisID: 'yPerc'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      interaction: { mode: 'index', intersect: false },
-      scales: {
-        y: {
-          position: 'left',
-          title: { display: true, text: CurrencySymbolBRL },
-          ticks: { callback: value => fmtNumInt(value) },
-          beginAtZero: true
-        },
-        yPerc: {
-          position: 'right',
-          title: { display: false, text: '%' },
-          ticks: { callback: value => value + '%' },
-          beginAtZero: true,
-          suggestedMax: 100,
-          grid: { drawOnChartArea: false }
-        }
+  const elCustos = document.getElementById('chartCustos');
+  if (elCustos) {
+    new Chart(elCustos, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: LabelTotalCostBRL,
+            data: apiData.custos.total,
+            backgroundColor: 'rgba(77, 166, 255, 0.7)',
+            borderColor: '#4da6ff',
+            borderWidth: 1,
+            borderRadius: 4,
+            yAxisID: 'y'
+          },
+          {
+            label: LabelPaidRechargesBRL,
+            data: apiData.custos.pagas,
+            backgroundColor: 'rgba(150, 226, 103, 0.7)',
+            borderColor: '#96e267',
+            borderWidth: 1,
+            borderRadius: 4,
+            yAxisID: 'y'
+          },
+          {
+            type: 'line',
+            label: LabelPercentPaidOverTotal,
+            data: apiData.custos.percentual,
+            borderColor: '#e0a845',
+            backgroundColor: 'rgba(224, 168, 69, 0.2)',
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#e0a845',
+            yAxisID: 'yPerc'
+          }
+        ]
       },
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const dsLabel = ctx.dataset.label || '';
-              const v = ctx.raw;
-              return ctx.dataset.yAxisID === 'yPerc'
-                ? `${dsLabel}: ${v}%`
-                : `${dsLabel}: ${fmtBRL(v)}`;
-            }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          y: {
+            position: 'left',
+            title: { display: true, text: CurrencySymbolBRL, color: '#8b9481' },
+            ticks: { callback: value => fmtNumInt(value), color: '#8b9481' },
+            grid: { color: 'rgba(40, 48, 37, 0.5)' },
+            beginAtZero: true
+          },
+          yPerc: {
+            position: 'right',
+            title: { display: false, text: '%' },
+            ticks: { callback: value => value + '%', color: '#8b9481' },
+            beginAtZero: true,
+            suggestedMax: 100,
+            grid: { drawOnChartArea: false }
+          },
+          x: {
+            ticks: { color: '#8b9481' },
+            grid: { color: 'rgba(40, 48, 37, 0.5)' }
           }
         },
-        legend: { position: 'bottom' }
+        plugins: {
+          tooltip: {
+            backgroundColor: '#10150d',
+            borderColor: '#283025',
+            borderWidth: 1,
+            titleColor: '#e0e4d6',
+            bodyColor: '#e0e4d6',
+            callbacks: {
+              label: ctx => {
+                const dsLabel = ctx.dataset.label || '';
+                const v = ctx.raw;
+                return ctx.dataset.yAxisID === 'yPerc'
+                  ? `${dsLabel}: ${v}%`
+                  : `${dsLabel}: ${fmtBRL(v)}`;
+              }
+            }
+          },
+          legend: { position: 'bottom', labels: { color: '#e0e4d6', padding: 15 } }
+        }
       }
-    }
-  });
-
+    });
+  }
 
   // ============ Gráfico 2: Consumo por Mês (kWh) Consumo / 100Km ============ //
-  new Chart(document.getElementById('chartConsumo'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: LabelKWhInMonth,
-          data: apiData.consumo,
-          backgroundColor: 'rgba(255,193,7,0.6)',
-          borderColor: 'rgba(255,193,7,1)',
-          borderWidth: 1,
-          yAxisID: 'y'
-        },
-        {
-          type: 'line',
-          label: LabelKWhPer100Km,
-          data: apiData.consumo_por_100km,
-          borderColor: 'rgba(13,110,253,1)',
-          backgroundColor: 'rgba(13,110,253,0.2)',
-          tension: 0.25,
-          pointRadius: 3,
-          yAxisID: 'y2'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      interaction: { mode: 'index', intersect: false },
-      scales: {
-        y: {
-          position: 'left',
-          title: { display: true, text: 'kWh' },
-          ticks: { callback: value => fmtNum(value) },
-          beginAtZero: true
-        },
-        y2: {
-          position: 'right',
-          title: { display: true, text: LabelKWhPer100Km },
-          ticks: { callback: value => fmtNum(value) },
-          beginAtZero: true,
-          grid: { drawOnChartArea: false }
-        }
+  const elConsumo = document.getElementById('chartConsumo');
+  if (elConsumo) {
+    new Chart(elConsumo, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: LabelKWhInMonth,
+            data: apiData.consumo,
+            backgroundColor: 'rgba(150, 226, 103, 0.7)',
+            borderColor: '#96e267',
+            borderWidth: 1,
+            borderRadius: 4,
+            yAxisID: 'y'
+          },
+          {
+            type: 'line',
+            label: LabelKWhPer100Km,
+            data: apiData.consumo_por_100km,
+            borderColor: '#4da6ff',
+            backgroundColor: 'rgba(77, 166, 255, 0.2)',
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#4da6ff',
+            yAxisID: 'y2'
+          }
+        ]
       },
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const dsLabel = ctx.dataset.label || '';
-              const v = ctx.raw;
-              const unidade = ctx.dataset.yAxisID === 'y' ? 'kWh' : LabelKWhPer100Km;
-              return `${dsLabel}: ${fmtNum(v)} ${unidade}`;
-            }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          y: {
+            position: 'left',
+            title: { display: true, text: 'kWh', color: '#8b9481' },
+            ticks: { callback: value => fmtNum(value), color: '#8b9481' },
+            grid: { color: 'rgba(40, 48, 37, 0.5)' },
+            beginAtZero: true
+          },
+          y2: {
+            position: 'right',
+            title: { display: true, text: LabelKWhPer100Km, color: '#8b9481' },
+            ticks: { callback: value => fmtNum(value), color: '#8b9481' },
+            beginAtZero: true,
+            grid: { drawOnChartArea: false }
+          },
+          x: {
+            ticks: { color: '#8b9481' },
+            grid: { color: 'rgba(40, 48, 37, 0.5)' }
           }
         },
-        legend: { position: 'bottom' }
+        plugins: {
+          tooltip: {
+            backgroundColor: '#10150d',
+            borderColor: '#283025',
+            borderWidth: 1,
+            titleColor: '#e0e4d6',
+            bodyColor: '#e0e4d6',
+            callbacks: {
+              label: ctx => {
+                const dsLabel = ctx.dataset.label || '';
+                const v = ctx.raw;
+                const unidade = ctx.dataset.yAxisID === 'y' ? 'kWh' : LabelKWhPer100Km;
+                return `${dsLabel}: ${fmtNum(v)} ${unidade}`;
+              }
+            }
+          },
+          legend: { position: 'bottom', labels: { color: '#e0e4d6', padding: 15 } }
+        }
       }
-    }
-  });
-
+    });
+  }
 
   // ============ Gráfico 3: Km Rodados por Mês ============ //
-  new Chart(document.getElementById('chartKm'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: LabelKmInMonth,
-        data: apiData.km,
-        backgroundColor: 'rgba(33,37,41,0.6)',
-        borderColor: 'rgba(33,37,41,1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          title: { display: true, text: LabelKm },
-          ticks: { callback: value => fmtNum(value) },
-          beginAtZero: true
-        }
+  const elKm = document.getElementById('chartKm');
+  if (elKm) {
+    new Chart(elKm, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: LabelKmInMonth,
+          data: apiData.km,
+          backgroundColor: 'rgba(139, 148, 129, 0.6)',
+          borderColor: '#8b9481',
+          borderWidth: 1,
+          borderRadius: 4
+        }]
       },
-      plugins: {
-        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmtNum(c.raw)} ${LabelKm}` } },
-        legend: { position: 'bottom' }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            title: { display: true, text: LabelKm, color: '#8b9481' },
+            ticks: { callback: value => fmtNum(value), color: '#8b9481' },
+            grid: { color: 'rgba(40, 48, 37, 0.5)' },
+            beginAtZero: true
+          },
+          x: {
+            ticks: { color: '#8b9481' },
+            grid: { color: 'rgba(40, 48, 37, 0.5)' }
+          }
+        },
+        plugins: {
+          tooltip: {
+            backgroundColor: '#10150d',
+            borderColor: '#283025',
+            borderWidth: 1,
+            titleColor: '#e0e4d6',
+            bodyColor: '#e0e4d6',
+            callbacks: { label: c => `${c.dataset.label}: ${fmtNum(c.raw)} ${LabelKm}` }
+          },
+          legend: { position: 'bottom', labels: { color: '#e0e4d6', padding: 15 } }
+        }
       }
-    }
-  });
+    });
+  }
 
   // ============ Gráfico 4: Valores Economizados por Mês ============ //
-  new Chart(document.getElementById('chartEconomia'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: LabelTotalSavingsBRL,
-          data: apiData.economia.total,
-          backgroundColor: 'rgba(253,126,20,0.6)',
-          borderColor: 'rgba(253,126,20,1)',
-          borderWidth: 1
-        },
-        {
-          label: LabelPaidSavingsBRL,
-          data: apiData.economia.pagas,
-          backgroundColor: 'rgba(108,117,125,0.6)',
-          borderColor: 'rgba(108,117,125,1)',
-          borderWidth: 1
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          title: { display: true, text: CurrencySymbolBRL },
-          ticks: { callback: value => fmtNumInt(value) },
-          beginAtZero: true
-        }
+  const elEconomia = document.getElementById('chartEconomia');
+  if (elEconomia) {
+    new Chart(elEconomia, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: LabelTotalSavingsBRL,
+            data: apiData.economia.total,
+            backgroundColor: 'rgba(150, 226, 103, 0.8)',
+            borderColor: '#96e267',
+            borderWidth: 1,
+            borderRadius: 4
+          },
+          {
+            label: LabelPaidSavingsBRL,
+            data: apiData.economia.pagas,
+            backgroundColor: 'rgba(77, 166, 255, 0.6)',
+            borderColor: '#4da6ff',
+            borderWidth: 1,
+            borderRadius: 4
+          }
+        ]
       },
-      plugins: {
-        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmtBRL(c.raw)}` } },
-        legend: { position: 'bottom' }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            title: { display: true, text: CurrencySymbolBRL, color: '#8b9481' },
+            ticks: { callback: value => fmtNumInt(value), color: '#8b9481' },
+            grid: { color: 'rgba(40, 48, 37, 0.5)' },
+            beginAtZero: true
+          },
+          x: {
+            ticks: { color: '#8b9481' },
+            grid: { color: 'rgba(40, 48, 37, 0.5)' }
+          }
+        },
+        plugins: {
+          tooltip: {
+            backgroundColor: '#10150d',
+            borderColor: '#283025',
+            borderWidth: 1,
+            titleColor: '#e0e4d6',
+            bodyColor: '#e0e4d6',
+            callbacks: { label: c => `${c.dataset.label}: ${fmtBRL(c.raw)}` }
+          },
+          legend: { position: 'bottom', labels: { color: '#e0e4d6', padding: 15 } }
+        }
       }
-    }
-  });
+    });
+  }
 })();
