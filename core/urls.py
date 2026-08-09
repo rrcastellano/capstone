@@ -25,4 +25,5 @@ urlpatterns = [
     path('api/recharges/monthly/', views.api_recharges_monthly, name='api_recharges_monthly'),
     path('settings/', views.settings_view, name='settings'),
     path('delete-account/', views.delete_account, name='delete_account'),
+    path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
 ]

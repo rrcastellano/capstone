@@ -1,0 +1,123 @@
+{% extends 'core/layout.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10 col-xl-9">
+
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+      <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle mb-3" style="width: 72px; height: 72px;">
+        <i class="fas fa-user-shield fa-2x"></i>
+      </div>
+      <h1 class="fw-bold text-light">{% trans "Política de Privacidade" %}</h1>
+      <p class="text-muted fs-5">
+        {% trans "EVChargeLog.com & EVChargeLog App Automotivo" %}
+      </p>
+      <p class="text-secondary small">
+        {% trans "Última atualização: 9 de agosto de 2026" %}
+      </p>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="card bg-dark border-secondary shadow-lg mb-5">
+      <div class="card-body p-4 p-md-5 text-secondary">
+
+        <h4 class="fw-bold text-light mb-3">1. {% trans "Introdução" %}</h4>
+        <p>
+          {% trans "Esta Política de Privacidade descreve como o EVChargeLog (referido como 'nós', 'nosso' ou 'aplicativo'), disponível através do site evchargelog.com e do aplicativo para Android e Android Automotive OS, coleta, usa, armazena e protege suas informações pessoais e dados do seu veículo elétrico." %}
+        </p>
+        <p>
+          {% trans "Ao utilizar nossos serviços, você concorda com a coleta e o uso de informações de acordo com esta política. Garantimos transparência total e conformidade com as diretrizes do Google Play e leis de proteção de dados aplicáveis (LGPD e GDPR)." %}
+        </p>
+
+        <hr class="border-secondary my-4">
+
+        <h4 class="fw-bold text-light mb-3">2. {% trans "Dados que Coletamos" %}</h4>
+        <p>{% trans "Para fornecer serviços de gerenciamento inteligente de recargas de veículos elétricos, coletamos as seguintes categorias de dados:" %}</p>
+        <ul class="mb-4">
+          <li class="mb-2">
+            <strong class="text-light">{% trans "Informações de Conta e Identificação:" %}</strong>
+            {% trans "Endereço de e-mail utilizado para criação de conta, autenticação segura e sincronização de dados entre dispositivos." %}
+          </li>
+          <li class="mb-2">
+            <strong class="text-light">{% trans "Dados de Recarga e Custos:" %}</strong>
+            {% trans "Quantidade de energia consumida (kWh), valor gasto por recarga, indicação de recarga isenta/gratuita, data e horário da recarga, e observações personalizadas digitadas pelo usuário." %}
+          </li>
+          <li class="mb-2">
+            <strong class="text-light">{% trans "Dados de Telemetria do Veículo (VHAL):" %}</strong>
+            {% trans "No aplicativo Android Automotive OS instalado diretamente na central multimídia do carro, o app lê através da API nativa do sistema (CarPropertyManager): quilometragem do odômetro (PERF_ODOMETER), porcentagem da bateria, taxa de carregamento em kW, estado da marcha e pressão dos pneus." %}
+          </li>
+          <li class="mb-2">
+            <strong class="text-light">{% trans "Dados de Localização:" %}</strong>
+            {% trans "Coordenadas geográficas (latitude e longitude) e nome do local do posto de recarga, exclusivamente quando autorizados pelo usuário para mapeamento e registro de estações." %}
+          </li>
+        </ul>
+
+        <hr class="border-secondary my-4">
+
+        <h4 class="fw-bold text-light mb-3">3. {% trans "Como Utilizamos seus Dados" %}</h4>
+        <p>{% trans "Utilizamos os dados coletados exclusivamente para as seguintes finalidades:" %}</p>
+        <ul class="mb-4">
+          <li>{% trans "Calcular estatísticas de consumo, custo médio por km, autonomia estimada e economia do seu veículo elétrico." %}</li>
+          <li>{% trans "Sincronizar seus históricos de recarga de forma segura entre a central do carro e seu painel web em evchargelog.com." %}</li>
+          <li>{% trans "Permitir o gerenciamento, edição e exportação dos seus registros de recarga." %}</li>
+          <li>{% trans "Manter a segurança e a integridade da sua conta de usuário." %}</li>
+        </ul>
+        <div class="alert alert-info bg-dark border-info text-info mb-4" role="alert">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>{% trans "Compromisso de Não Comercialização:" %}</strong> {% trans "NUNCA vendemos, alugamos ou compartilhamos seus dados pessoais ou históricos de recarga com terceiros, parceiros comerciais ou empresas de publicidade." %}
+        </div>
+
+        <hr class="border-secondary my-4">
+
+        <h4 class="fw-bold text-light mb-3">4. {% trans "Armazenamento e Criptografia de Dados" %}</h4>
+        <p>
+          {% trans "Todos os dados transmitidos entre o aplicativo móvel, o painel web e nossos servidores são encriptados usando protocolos de segurança padrões de mercado (HTTPS / TLS 1.3)." %}
+        </p>
+        <p>
+          {% trans "Os dados são armazenados em bancos de dados seguros no Supabase (PostgreSQL) com controles rígidos de acesso (Row Level Security), onde cada usuário pode visualizar e manipular apenas seus próprios registros." %}
+        </p>
+
+        <hr class="border-secondary my-4">
+
+        <h4 class="fw-bold text-light mb-3">5. {% trans "Permissões do Android Automotive OS" %}</h4>
+        <p>{% trans "No ambiente do carro, o aplicativo solicita as seguintes permissões do sistema:" %}</p>
+        <ul>
+          <li><code>android.car.permission.CAR_MILEAGE_3P</code>: {% trans "Para leitura da quilometragem do odômetro do veículo." %}</li>
+          <li><code>android.car.permission.CAR_TIRES</code>: {% trans "Para exibição da pressão dos pneus na tela de diagnóstico do carro." %}</li>
+          <li><code>ACCESS_FINE_LOCATION</code>: {% trans "Para identificar o local onde a recarga está sendo realizada." %}</li>
+        </ul>
+        <p>{% trans "Todas as permissões são opcionais e podem ser concedidas ou revogadas a qualquer momento nas configurações do veículo." %}</p>
+
+        <hr class="border-secondary my-4">
+
+        <h4 class="fw-bold text-light mb-3">6. {% trans "Seus Direitos e Exclusão de Dados" %}</h4>
+        <p>
+          {% trans "Você tem o direito de acessar, corrigir, exportar ou solicitar a exclusão definitiva dos seus dados a qualquer momento." %}
+        </p>
+        <p>
+          {% trans "Para excluir sua conta e apagar permanentemente todos os seus registros de nossos servidores, você pode:" %}
+        </p>
+        <ol class="mb-4">
+          <li>{% trans "Acessar a página dedicada de exclusão em:" %} <a href="{% url 'delete_account' %}" class="text-success fw-bold">evchargelog.com/delete-account/</a></li>
+          <li>{% trans "Caso esteja logado, confirmar a exclusão direta no seu painel de configurações." %}</li>
+          <li>{% trans "Enviar uma solicitação de exclusão por e-mail para:" %} <a href="mailto:contato@evchargelog.com" class="text-success fw-bold">contato@evchargelog.com</a></li>
+        </ol>
+
+        <hr class="border-secondary my-4">
+
+        <h4 class="fw-bold text-light mb-3">7. {% trans "Contato do Encarregado de Privacidade" %}</h4>
+        <p>{% trans "Se você tiver qualquer dúvida sobre esta Política de Privacidade ou sobre o tratamento de seus dados, entre em contato conosco:" %}</p>
+        <ul class="list-unstyled">
+          <li><i class="fas fa-globe text-success me-2"></i><strong>{% trans "Website:" %}</strong> <a href="https://evchargelog.com" class="text-light">https://evchargelog.com</a></li>
+          <li><i class="fas fa-envelope text-success me-2"></i><strong>{% trans "E-mail:" %}</strong> <a href="mailto:contato@evchargelog.com" class="text-light">contato@evchargelog.com</a></li>
+        </ul>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

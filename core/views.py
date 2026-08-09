@@ -697,3 +697,8 @@ def delete_account(request):
     return render(request, 'core/delete_account.html')
 
 
+def privacy_policy(request):
+    return render(request, 'core/privacy_policy.html')
+
+
+
