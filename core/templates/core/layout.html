@@ -107,7 +107,12 @@
   </div>
 
   <footer class="text-center mt-5 mb-4">
-    <p class="mb-2">&copy; {% trans "2025 Gestão de Recargas EVChargeLog" %}</p>
+    <p class="mb-1">&copy; {% trans "2025 Gestão de Recargas EVChargeLog" %}</p>
+    <p class="mb-2">
+      <a href="{% url 'delete_account' %}" class="text-secondary text-decoration-none small">
+        <i class="fas fa-user-shield me-1"></i>{% trans "Exclusão de Conta e Dados" %}
+      </a>
+    </p>
     <div class="container language-switcher" style="text-align: center; padding-bottom: 20px;">
       <form action="{% url 'set_language' %}" method="post">
         {% csrf_token %}
