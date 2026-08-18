@@ -54,6 +54,11 @@ def api_recharge_list(request):
                 "odometro": r.odometro,
                 "observacoes": r.observacoes,
                 "local": r.local,
+                "bateria_antes": r.bateria_antes,
+                "bateria_depois": r.bateria_depois,
+                "tipo_recarga": r.tipo_recarga,
+                "latitude": r.latitude,
+                "longitude": r.longitude,
             })
         return JsonResponse(data, safe=False)
     
@@ -68,7 +73,12 @@ def api_recharge_list(request):
                 isento=body.get("isento", False),
                 odometro=float(body.get("odometro", 0)),
                 observacoes=body.get("observacoes", ""),
-                local=body.get("local", "")
+                local=body.get("local", ""),
+                bateria_antes=body.get("bateria_antes"),
+                bateria_depois=body.get("bateria_depois"),
+                tipo_recarga=body.get("tipo_recarga"),
+                latitude=body.get("latitude"),
+                longitude=body.get("longitude")
             )
             return JsonResponse({"status": "success", "id": recharge.id})
         except Exception as e:
@@ -92,6 +102,11 @@ def api_recharge_detail(request, pk):
             "odometro": recharge.odometro,
             "observacoes": recharge.observacoes,
             "local": recharge.local,
+            "bateria_antes": recharge.bateria_antes,
+            "bateria_depois": recharge.bateria_depois,
+            "tipo_recarga": recharge.tipo_recarga,
+            "latitude": recharge.latitude,
+            "longitude": recharge.longitude,
         })
     
     elif request.method == "PUT":
@@ -104,6 +119,16 @@ def api_recharge_detail(request, pk):
             recharge.odometro = float(body.get("odometro", recharge.odometro))
             recharge.observacoes = body.get("observacoes", recharge.observacoes)
             recharge.local = body.get("local", recharge.local)
+            if "bateria_antes" in body:
+                recharge.bateria_antes = body.get("bateria_antes")
+            if "bateria_depois" in body:
+                recharge.bateria_depois = body.get("bateria_depois")
+            if "tipo_recarga" in body:
+                recharge.tipo_recarga = body.get("tipo_recarga")
+            if "latitude" in body:
+                recharge.latitude = body.get("latitude")
+            if "longitude" in body:
+                recharge.longitude = body.get("longitude")
             recharge.save()
             return JsonResponse({"status": "success"})
         except Exception as e:

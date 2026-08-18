@@ -54,15 +54,24 @@ class RegisterForm(UserCreationForm):
 class RechargeForm(forms.ModelForm):
     class Meta:
         model = Recharge
-        fields = ['data', 'odometro', 'kwh', 'custo', 'isento', 'observacoes', 'local']
+        fields = [
+            'data', 'odometro', 'kwh', 'custo', 'isento',
+            'tipo_recarga', 'bateria_antes', 'bateria_depois',
+            'local', 'latitude', 'longitude', 'observacoes'
+        ]
         labels = {
             'data': _('Data'),
             'odometro': _('Odômetro'),
             'kwh': _('kWh'),
             'custo': _('Custo'),
             'isento': _('Isento'),
-            'observacoes': _('Observações'),
+            'tipo_recarga': _('Tipo de Recarga (AC/DC)'),
+            'bateria_antes': _('Bateria Antes (%)'),
+            'bateria_depois': _('Bateria Depois (%)'),
             'local': _('Local'),
+            'latitude': _('Latitude'),
+            'longitude': _('Longitude'),
+            'observacoes': _('Observações'),
         }
         widgets = {
             'data': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
@@ -70,6 +79,11 @@ class RechargeForm(forms.ModelForm):
             'kwh': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'custo': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'isento': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': _('Opcional...')}),
+            'tipo_recarga': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'AC / DC'}),
+            'bateria_antes': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100, 'placeholder': '%'}),
+            'bateria_depois': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100, 'placeholder': '%'}),
             'local': forms.TextInput(attrs={'class': 'form-control'}),
+            'latitude': forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
+            'longitude': forms.NumberInput(attrs={'class': 'form-control', 'step': 'any'}),
+            'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': _('Opcional...')}),
         }

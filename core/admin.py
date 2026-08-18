@@ -37,9 +37,9 @@ class ContactLogAdmin(admin.ModelAdmin):
 
 @admin.register(Recharge)
 class RechargeAdmin(admin.ModelAdmin):
-    list_display = ('user', 'data', 'kwh', 'custo', 'isento', 'local')
-    list_filter = ('user', 'isento', 'data')
-    search_fields = ('user__username', 'local', 'observacoes')
+    list_display = ('user', 'data', 'kwh', 'custo', 'isento', 'tipo_recarga', 'local', 'bateria_antes', 'bateria_depois')
+    list_filter = ('user', 'isento', 'tipo_recarga', 'data')
+    search_fields = ('user__username', 'local', 'observacoes', 'tipo_recarga')
     date_hierarchy = 'data'
 
 @admin.register(Settings)

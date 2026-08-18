@@ -72,7 +72,21 @@ import unicodedata
 
 def normalize_header(h):
     if not h: return ""
-    return unicodedata.normalize('NFKD', h).encode('ASCII', 'ignore').decode('utf-8').strip().lower()
+    norm = unicodedata.normalize('NFKD', h).encode('ASCII', 'ignore').decode('utf-8').strip().lower()
+    norm = norm.replace(" ", "_").replace("-", "_")
+    if norm in ['bat_antes', 'bateria_inicial', 'soc_antes']:
+        return 'bateria_antes'
+    if norm in ['bat_depois', 'bateria_final', 'soc_depois']:
+        return 'bateria_depois'
+    if norm in ['tipo', 'tipo_de_recarga']:
+        return 'tipo_recarga'
+    if norm in ['lat']:
+        return 'latitude'
+    if norm in ['lng', 'lon']:
+        return 'longitude'
+    if norm in ['obs']:
+        return 'observacoes'
+    return norm
 
 def validate_csv_and_parse(file_storage):
     err_msgs = []
@@ -113,8 +127,7 @@ def validate_csv_and_parse(file_storage):
 
     # Normalize headers behavior: Remove accents, lowercase
     reader.fieldnames = [normalize_header(h) for h in reader.fieldnames]
-    required_headers = ['data', 'kwh', 'custo', 'isento', 'odometro']
-    # observacoes is optional
+    required_headers = ['data', 'kwh', 'custo', 'isento', 'odometro', 'bateria_antes', 'bateria_depois', 'tipo_recarga']
 
     missing = [h for h in required_headers if h not in reader.fieldnames]
     if missing:
@@ -152,6 +165,26 @@ def validate_csv_and_parse(file_storage):
             isento_raw = (row.get('isento') or "").strip().lower()
             isento = isento_raw in ["true", "1", "sim", "yes", "y"]
 
+            bat_antes_raw = (row.get('bateria_antes') or "").replace('%', '').strip()
+            if not bat_antes_raw:
+                raise ValueError(_("Campo 'bateria_antes' vazio."))
+            bateria_antes = int(float(bat_antes_raw))
+
+            bat_depois_raw = (row.get('bateria_depois') or "").replace('%', '').strip()
+            if not bat_depois_raw:
+                raise ValueError(_("Campo 'bateria_depois' vazio."))
+            bateria_depois = int(float(bat_depois_raw))
+
+            tipo_recarga = (row.get('tipo_recarga') or "").strip()
+            if not tipo_recarga:
+                raise ValueError(_("Campo 'tipo_recarga' vazio."))
+
+            lat_raw = (row.get('latitude') or "").strip().replace(',', '.')
+            latitude = float(lat_raw) if lat_raw else None
+
+            lng_raw = (row.get('longitude') or "").strip().replace(',', '.')
+            longitude = float(lng_raw) if lng_raw else None
+
             rows_validos.append({
                 'data': dt,
                 'kwh': kwh,
@@ -160,6 +193,11 @@ def validate_csv_and_parse(file_storage):
                 'isento': isento,
                 'observacoes': observacoes,
                 'local': local,
+                'bateria_antes': bateria_antes,
+                'bateria_depois': bateria_depois,
+                'tipo_recarga': tipo_recarga,
+                'latitude': latitude,
+                'longitude': longitude,
             })
         except ValueError as ve:
             err_msgs.append(_(f"Linha {line_num}: {ve}"))
@@ -200,7 +238,12 @@ def bulk_recharge(request):
                     isento=r['isento'],
                     odometro=r['odometro'],
                     observacoes=r.get('observacoes', ''),
-                    local=r.get('local', '')
+                    local=r.get('local', ''),
+                    bateria_antes=r.get('bateria_antes'),
+                    bateria_depois=r.get('bateria_depois'),
+                    tipo_recarga=r.get('tipo_recarga'),
+                    latitude=r.get('latitude'),
+                    longitude=r.get('longitude'),
                 )
                 count += 1
             except Exception as e:
@@ -283,17 +326,31 @@ def manage_recharges(request):
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         writer = csv.writer(response)
-        writer.writerow(['Data', 'Local', 'kWh', 'Custo', 'Odometro', 'Isento', 'Observacoes'])
+        writer.writerow([
+            'Data', 'Local', 'kWh', 'Custo', 'Odometro',
+            'Bateria_Antes', 'Bateria_Depois', 'Tipo_Recarga',
+            'Isento', 'Observacoes', 'Latitude', 'Longitude'
+        ])
 
         for r in recharge_list:
+            bat_antes = f"{r.bateria_antes}%" if r.bateria_antes is not None else ""
+            bat_depois = f"{r.bateria_depois}%" if r.bateria_depois is not None else ""
+            lat = r.latitude if r.latitude is not None else ""
+            lng = r.longitude if r.longitude is not None else ""
+
             writer.writerow([
                 r.data.strftime("%Y-%m-%d %H:%M"),
                 r.local or "",
                 r.kwh,
                 r.custo,
                 r.odometro,
+                bat_antes,
+                bat_depois,
+                r.tipo_recarga or "",
                 str(r.isento),
-                r.observacoes or ""
+                r.observacoes or "",
+                lat,
+                lng
             ])
         return response
 

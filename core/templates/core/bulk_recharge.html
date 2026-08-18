@@ -2,40 +2,104 @@
 {% load i18n %}
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
+    <div class="col-lg-9 col-md-10">
         <h2 class="page-title mb-4"><i class="fa fa-file-csv me-2"></i> {% trans "Importar Recargas via CSV" %}</h2>
 
-        <div class="alert alert-info">
-            <h5>{% trans "Instruções" %}</h5>
-            <p>{% trans "O arquivo CSV deve conter os seguintes cabeçalhos (ordem não importa):" %}</p>
-            <ul>
-                <li><code>data</code> (AAAA-MM-DD HH:MM)</li>
-                <li><code>kwh</code> (12.5)</li>
-                <li><code>custo</code> (30.00)</li>
-                <li><code>odometro</code> (15000)</li>
-                <li><code>isento</code> (true/false ou 1/0)</li>
-                <li><code>observacoes</code> (Texto opcional)</li>
-            </ul>
-        </div>
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-light">
+                <h5 class="mb-0 text-primary"><i class="fas fa-info-circle me-2"></i>{% trans "Instruções de Formatação" %}</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">{% trans "O arquivo CSV deve conter os seguintes cabeçalhos (a ordem das colunas não importa):" %}</p>
 
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label class="form-label">{% trans "Selecione o arquivo CSV" %}</label>
-                <div class="input-group">
-                    <label class="input-group-text btn btn-secondary" for="file">
-                        {% trans "Escolher Arquivo" %}
-                    </label>
-                    <input type="file" class="form-control d-none" id="file" name="file" required accept=".csv"
-                        onchange="document.getElementById('file-name').textContent = this.files[0] ? this.files[0].name : document.getElementById('file-name').dataset.default;">
-                    <span class="form-control text-muted" id="file-name"
-                        data-default="{% trans 'Nenhum arquivo escolhido' %}">{% trans "Nenhum arquivo escolhido"
-                        %}</span>
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <h6 class="fw-bold text-dark"><i class="fas fa-asterisk text-danger me-1 small"></i>{% trans "Campos Obrigatórios" %}</h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <code>data</code> <span class="badge bg-secondary">{% trans "Data/Hora" %}</span><br>
+                                <small class="text-muted">{% trans "Formato: AAAA-MM-DD HH:MM (ex: 2026-08-16 13:20)" %}</small>
+                            </li>
+                            <li class="mb-2">
+                                <code>kwh</code> <span class="badge bg-secondary">{% trans "Número" %}</span><br>
+                                <small class="text-muted">{% trans "Energia recarregada (ex: 11.94 ou 50.3)" %}</small>
+                            </li>
+                            <li class="mb-2">
+                                <code>custo</code> <span class="badge bg-secondary">{% trans "Número" %}</span><br>
+                                <small class="text-muted">{% trans "Custo total em R$ (ex: 30.00 ou 0.0)" %}</small>
+                            </li>
+                            <li class="mb-2">
+                                <code>odometro</code> <span class="badge bg-secondary">{% trans "Número" %}</span><br>
+                                <small class="text-muted">{% trans "Quilometragem do veículo (ex: 24464.0)" %}</small>
+                            </li>
+                            <li class="mb-2">
+                                <code>isento</code> <span class="badge bg-secondary">{% trans "Booleano" %}</span><br>
+                                <small class="text-muted">{% trans "True/False, 1/0 ou Sim/Não" %}</small>
+                            </li>
+                            <li class="mb-2">
+                                <code>bateria_antes</code> <span class="badge bg-secondary">{% trans "% Bateria" %}</span><br>
+                                <small class="text-muted">{% trans "Nível inicial antes da recarga (ex: 56% ou 56)" %}</small>
+                            </li>
+                            <li class="mb-2">
+                                <code>bateria_depois</code> <span class="badge bg-secondary">{% trans "% Bateria" %}</span><br>
+                                <small class="text-muted">{% trans "Nível final após a recarga (ex: 73% ou 73)" %}</small>
+                            </li>
+                            <li class="mb-2">
+                                <code>tipo_recarga</code> <span class="badge bg-secondary">{% trans "Tipo" %}</span><br>
+                                <small class="text-muted">{% trans "Padrão de carregamento (AC ou DC)" %}</small>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-5">
+                        <h6 class="fw-bold text-dark"><i class="fas fa-plus-circle text-success me-1 small"></i>{% trans "Campos Opcionais" %}</h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <code>local</code> <span class="badge bg-light text-dark border">{% trans "Texto" %}</span><br>
+                                <small class="text-muted">{% trans "Nome do posto/shopping (ex: Continental Shopping)" %}</small>
+                            </li>
+                            <li class="mb-2">
+                                <code>observacoes</code> <span class="badge bg-light text-dark border">{% trans "Texto" %}</span><br>
+                                <small class="text-muted">{% trans "Rede/operador ou anotações (ex: Zletric, BMW)" %}</small>
+                            </li>
+                            <li class="mb-2">
+                                <code>latitude</code> / <code>longitude</code> <span class="badge bg-light text-dark border">{% trans "Coordenadas" %}</span><br>
+                                <small class="text-muted">{% trans "GPS (ex: -23.5475 e -46.7577)" %}</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <h6 class="fw-bold text-dark mb-2">{% trans "Exemplo de Linha CSV" %}</h6>
+                <div class="bg-dark text-light p-3 rounded small overflow-auto font-monospace">
+                    <code>Data,Local,kWh,Custo,Odometro,Bateria_Antes,Bateria_Depois,Tipo_Recarga,Isento,Observacoes,Latitude,Longitude</code><br>
+                    <code>2026-08-16 13:20,Continental Shopping,11.94,30.0,24464.0,56%,73%,AC,True,Zletric,-23.5475,-46.7577</code>
                 </div>
             </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">{% trans "Selecione o arquivo CSV" %}</label>
+                        <div class="input-group">
+                            <label class="input-group-text btn btn-secondary" for="file">
+                                <i class="fas fa-folder-open me-2"></i>{% trans "Escolher Arquivo" %}
+                            </label>
+                            <input type="file" class="form-control d-none" id="file" name="file" required accept=".csv"
+                                onchange="document.getElementById('file-name').textContent = this.files[0] ? this.files[0].name : document.getElementById('file-name').dataset.default;">
+                            <span class="form-control text-muted" id="file-name"
+                                data-default="{% trans 'Nenhum arquivo escolhido' %}">{% trans "Nenhum arquivo escolhido" %}</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100"><i class="fas fa-upload me-2"></i>{% trans "Importar Recargas" %}</button>
+                </form>
+            </div>
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary w-100">{% trans "Importar" %}</button>
-    </form>
-</div>
 </div>
 {% endblock %}

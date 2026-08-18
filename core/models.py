@@ -10,6 +10,11 @@ class Recharge(models.Model):
     odometro = models.FloatField()
     observacoes = models.TextField(blank=True, null=True)
     local = models.CharField(max_length=100, blank=True, null=True)
+    bateria_antes = models.IntegerField(blank=True, null=True)
+    bateria_depois = models.IntegerField(blank=True, null=True)
+    tipo_recarga = models.CharField(max_length=10, blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.data}"
