@@ -52,6 +52,15 @@ class RegisterForm(UserCreationForm):
         return user
 
 class RechargeForm(forms.ModelForm):
+    data = forms.DateTimeField(
+        label=_('Data'),
+        widget=forms.DateTimeInput(
+            format='%Y-%m-%dT%H:%M',
+            attrs={'class': 'form-control', 'type': 'datetime-local'}
+        ),
+        input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d']
+    )
+
     class Meta:
         model = Recharge
         fields = [
@@ -74,7 +83,6 @@ class RechargeForm(forms.ModelForm):
             'observacoes': _('Observações'),
         }
         widgets = {
-            'data': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'odometro': forms.NumberInput(attrs={'class': 'form-control'}),
             'kwh': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'custo': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
