@@ -166,18 +166,28 @@ def validate_csv_and_parse(file_storage):
             isento = isento_raw in ["true", "1", "sim", "yes", "y"]
 
             bat_antes_raw = (row.get('bateria_antes') or "").replace('%', '').strip()
-            if not bat_antes_raw:
-                raise ValueError(_("Campo 'bateria_antes' vazio."))
-            bateria_antes = int(float(bat_antes_raw))
-
             bat_depois_raw = (row.get('bateria_depois') or "").replace('%', '').strip()
-            if not bat_depois_raw:
-                raise ValueError(_("Campo 'bateria_depois' vazio."))
-            bateria_depois = int(float(bat_depois_raw))
 
-            tipo_recarga = (row.get('tipo_recarga') or "").strip()
+            if not bat_antes_raw or not bat_depois_raw:
+                raise ValueError(_("Informe o percentual da bateria antes e depois da recarga."))
+
+            try:
+                bateria_antes = int(float(bat_antes_raw))
+                bateria_depois = int(float(bat_depois_raw))
+            except ValueError:
+                raise ValueError(_("A bateria deve estar entre 0 e 100 %."))
+
+            if bateria_antes < 0 or bateria_antes > 100 or bateria_depois < 0 or bateria_depois > 100:
+                raise ValueError(_("A bateria deve estar entre 0 e 100 %."))
+
+            if bateria_depois < bateria_antes:
+                raise ValueError(_("A bateria depois não pode ser menor que antes da recarga."))
+
+            tipo_recarga = (row.get('tipo_recarga') or "").strip().upper()
             if not tipo_recarga:
                 raise ValueError(_("Campo 'tipo_recarga' vazio."))
+            if tipo_recarga not in ['AC', 'DC']:
+                raise ValueError(_("Tipo de recarga inválido (deve ser AC ou DC)."))
 
             latitude = None
             try:

@@ -65,6 +65,28 @@ def api_recharge_list(request):
     elif request.method == "POST":
         try:
             body = json.loads(request.body)
+
+            bat_antes_raw = body.get("bateria_antes")
+            bat_depois_raw = body.get("bateria_depois")
+            if bat_antes_raw is None or str(bat_antes_raw).strip() == "" or bat_depois_raw is None or str(bat_depois_raw).strip() == "":
+                return JsonResponse({"status": "error", "message": "Informe o percentual da bateria antes e depois da recarga."}, status=400)
+            
+            try:
+                bat_antes = int(float(str(bat_antes_raw).replace('%', '').strip()))
+                bat_depois = int(float(str(bat_depois_raw).replace('%', '').strip()))
+            except ValueError:
+                return JsonResponse({"status": "error", "message": "A bateria deve estar entre 0 e 100 %."}, status=400)
+
+            if bat_antes < 0 or bat_antes > 100 or bat_depois < 0 or bat_depois > 100:
+                return JsonResponse({"status": "error", "message": "A bateria deve estar entre 0 e 100 %."}, status=400)
+
+            if bat_depois < bat_antes:
+                return JsonResponse({"status": "error", "message": "A bateria depois não pode ser menor que antes da recarga."}, status=400)
+
+            tipo_recarga = (body.get("tipo_recarga") or "AC").strip().upper()
+            if tipo_recarga not in ['AC', 'DC']:
+                tipo_recarga = 'AC'
+
             recharge = Recharge.objects.create(
                 user=request.user,
                 data=body.get("data"),
@@ -74,9 +96,9 @@ def api_recharge_list(request):
                 odometro=float(body.get("odometro", 0)),
                 observacoes=body.get("observacoes", ""),
                 local=body.get("local", ""),
-                bateria_antes=int(body.get("bateria_antes")) if body.get("bateria_antes") is not None else None,
-                bateria_depois=int(body.get("bateria_depois")) if body.get("bateria_depois") is not None else None,
-                tipo_recarga=body.get("tipo_recarga"),
+                bateria_antes=bat_antes,
+                bateria_depois=bat_depois,
+                tipo_recarga=tipo_recarga,
                 latitude=float(body.get("latitude")) if body.get("latitude") is not None else None,
                 longitude=float(body.get("longitude")) if body.get("longitude") is not None else None
             )
@@ -119,12 +141,42 @@ def api_recharge_detail(request, pk):
             recharge.odometro = float(body.get("odometro", recharge.odometro))
             recharge.observacoes = body.get("observacoes", recharge.observacoes)
             recharge.local = body.get("local", recharge.local)
+            
+            bat_antes = recharge.bateria_antes
+            bat_depois = recharge.bateria_depois
+
             if "bateria_antes" in body:
-                recharge.bateria_antes = int(body["bateria_antes"]) if body["bateria_antes"] is not None else None
+                bat_antes_raw = body.get("bateria_antes")
+                if bat_antes_raw is None or str(bat_antes_raw).strip() == "":
+                    return JsonResponse({"status": "error", "message": "Informe o percentual da bateria antes e depois da recarga."}, status=400)
+                try:
+                    bat_antes = int(float(str(bat_antes_raw).replace('%', '').strip()))
+                except ValueError:
+                    return JsonResponse({"status": "error", "message": "A bateria deve estar entre 0 e 100 %."}, status=400)
+
             if "bateria_depois" in body:
-                recharge.bateria_depois = int(body["bateria_depois"]) if body["bateria_depois"] is not None else None
+                bat_depois_raw = body.get("bateria_depois")
+                if bat_depois_raw is None or str(bat_depois_raw).strip() == "":
+                    return JsonResponse({"status": "error", "message": "Informe o percentual da bateria antes e depois da recarga."}, status=400)
+                try:
+                    bat_depois = int(float(str(bat_depois_raw).replace('%', '').strip()))
+                except ValueError:
+                    return JsonResponse({"status": "error", "message": "A bateria deve estar entre 0 e 100 %."}, status=400)
+
+            if bat_antes is not None and (bat_antes < 0 or bat_antes > 100):
+                return JsonResponse({"status": "error", "message": "A bateria deve estar entre 0 e 100 %."}, status=400)
+            if bat_depois is not None and (bat_depois < 0 or bat_depois > 100):
+                return JsonResponse({"status": "error", "message": "A bateria deve estar entre 0 e 100 %."}, status=400)
+            if bat_antes is not None and bat_depois is not None and bat_depois < bat_antes:
+                return JsonResponse({"status": "error", "message": "A bateria depois não pode ser menor que antes da recarga."}, status=400)
+
+            recharge.bateria_antes = bat_antes
+            recharge.bateria_depois = bat_depois
+
             if "tipo_recarga" in body:
-                recharge.tipo_recarga = body.get("tipo_recarga")
+                tipo = (body.get("tipo_recarga") or "").strip().upper()
+                if tipo in ['AC', 'DC']:
+                    recharge.tipo_recarga = tipo
             if "latitude" in body:
                 recharge.latitude = float(body["latitude"]) if body["latitude"] is not None else None
             if "longitude" in body:

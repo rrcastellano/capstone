@@ -73,6 +73,17 @@ class RechargeForm(forms.ModelForm):
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'})
     )
 
+    bateria_antes = forms.IntegerField(
+        required=False,
+        label=_('Bateria Antes (%)'),
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100, 'placeholder': '%'})
+    )
+    bateria_depois = forms.IntegerField(
+        required=False,
+        label=_('Bateria Depois (%)'),
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100, 'placeholder': '%'})
+    )
+
     class Meta:
         model = Recharge
         fields = [
@@ -99,10 +110,39 @@ class RechargeForm(forms.ModelForm):
             'kwh': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'custo': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'isento': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'bateria_antes': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100, 'placeholder': '%'}),
-            'bateria_depois': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100, 'placeholder': '%'}),
             'local': forms.TextInput(attrs={'class': 'form-control'}),
             'latitude': forms.NumberInput(attrs={'class': 'form-control', 'step': 'any', 'placeholder': _('Opcional...')}),
             'longitude': forms.NumberInput(attrs={'class': 'form-control', 'step': 'any', 'placeholder': _('Opcional...')}),
             'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': _('Opcional...')}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        antes = cleaned_data.get('bateria_antes')
+        depois = cleaned_data.get('bateria_depois')
+
+        # 1. Salvar com bateria vazia
+        if antes is None or depois is None:
+            msg = _("Informe o percentual da bateria antes e depois da recarga.")
+            if antes is None:
+                self.add_error('bateria_antes', msg)
+            if depois is None:
+                self.add_error('bateria_depois', msg)
+            raise forms.ValidationError(msg)
+
+        # 2. Fora de 0-100
+        if antes < 0 or antes > 100 or depois < 0 or depois > 100:
+            msg = _("A bateria deve estar entre 0 e 100 %.")
+            if antes < 0 or antes > 100:
+                self.add_error('bateria_antes', msg)
+            if depois < 0 or depois > 100:
+                self.add_error('bateria_depois', msg)
+            raise forms.ValidationError(msg)
+
+        # 3. Depois menor que antes
+        if depois < antes:
+            msg = _("A bateria depois não pode ser menor que antes da recarga.")
+            self.add_error('bateria_depois', msg)
+            raise forms.ValidationError(msg)
+
+        return cleaned_data
