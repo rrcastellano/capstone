@@ -74,11 +74,11 @@ def api_recharge_list(request):
                 odometro=float(body.get("odometro", 0)),
                 observacoes=body.get("observacoes", ""),
                 local=body.get("local", ""),
-                bateria_antes=body.get("bateria_antes"),
-                bateria_depois=body.get("bateria_depois"),
+                bateria_antes=int(body.get("bateria_antes")) if body.get("bateria_antes") is not None else None,
+                bateria_depois=int(body.get("bateria_depois")) if body.get("bateria_depois") is not None else None,
                 tipo_recarga=body.get("tipo_recarga"),
-                latitude=body.get("latitude"),
-                longitude=body.get("longitude")
+                latitude=float(body.get("latitude")) if body.get("latitude") is not None else None,
+                longitude=float(body.get("longitude")) if body.get("longitude") is not None else None
             )
             return JsonResponse({"status": "success", "id": recharge.id})
         except Exception as e:
@@ -120,15 +120,15 @@ def api_recharge_detail(request, pk):
             recharge.observacoes = body.get("observacoes", recharge.observacoes)
             recharge.local = body.get("local", recharge.local)
             if "bateria_antes" in body:
-                recharge.bateria_antes = body.get("bateria_antes")
+                recharge.bateria_antes = int(body["bateria_antes"]) if body["bateria_antes"] is not None else None
             if "bateria_depois" in body:
-                recharge.bateria_depois = body.get("bateria_depois")
+                recharge.bateria_depois = int(body["bateria_depois"]) if body["bateria_depois"] is not None else None
             if "tipo_recarga" in body:
                 recharge.tipo_recarga = body.get("tipo_recarga")
             if "latitude" in body:
-                recharge.latitude = body.get("latitude")
+                recharge.latitude = float(body["latitude"]) if body["latitude"] is not None else None
             if "longitude" in body:
-                recharge.longitude = body.get("longitude")
+                recharge.longitude = float(body["longitude"]) if body["longitude"] is not None else None
             recharge.save()
             return JsonResponse({"status": "success"})
         except Exception as e:

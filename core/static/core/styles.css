@@ -1,166 +1,223 @@
-/* ===== Variáveis da Paleta de Cores e Fonte ===== */
-:root {
-  --green-dark: #0F6634;
-  --green-light: #77C556;
-  --white: #FFFFFF;
-  --black: #000000; /* Nova variável para o preto */
-  /* Cores de status adaptadas para a paleta */
-  --blue-primary: #0d6efd; /* Usando blue como primary */
-  --darkgreen-primary: #0F6634; /* Usando green-dark como primary */
-  --green-primary: #198754; /* Usando green como primary */
-  --green-success: #77C556; /* Usando green-light como success */
-  --yellow-warning: #ffc107; /* Mantido amarelo padrão para warning */
-  --orange-accent: #fd7e14; /* Mantido laranja padrão */
-  --red-danger: #dc3545; /* Mantido vermelho padrão para danger */
+/* ==========================================================================
+   EVChargeLog - Android AOS (Automotive OS) Premium Dark Theme
+   ========================================================================== */
 
-  --text-color-primary: var(--black); /* Cor principal do texto agora é preta */
-  --text-color-secondary: #555;
-  --background-card: var(--white);
-  --shadow-color: rgba(0, 0, 0, 0.1);
+:root,
+[data-bs-theme="dark"] {
+  /* Color Tokens - Android AOS Spec */
+  --aos-bg-deep: #0a0e14;          /* Fundo principal ultra-escuro (OLED Black/Slate) */
+  --aos-bg-surface: #131924;       /* Superfície de cards e painéis */
+  --aos-bg-surface-hover: #1a2232; /* Card Hover / Active State */
+  --aos-bg-input: #0f1520;         /* Inputs / Seletores */
+  --aos-border: #232d3f;           /* Bordas e separadores de estrutura */
+  --aos-border-highlight: #33425b; /* Borda em hover */
+  
+  /* Primary & Accent Colors */
+  --aos-accent-green: #84e046;     /* Verde Lima Neon (AOS Charging Active) */
+  --aos-accent-green-hover: #72cf35;
+  --aos-accent-green-glow: rgba(132, 224, 70, 0.25);
+  
+  --aos-accent-blue: #38bdf8;      /* Azul Elétrico AOS */
+  --aos-accent-yellow: #fbbf24;    /* Alertas / Isento */
+  --aos-accent-red: #f87171;       /* Perigo / Excluir */
+
+  /* Typography Colors */
+  --aos-text-main: #f8fafc;        /* Texto principal off-white */
+  --aos-text-muted: #94a3b8;       /* Subtítulos e rótulos secundários */
+  --aos-text-dark: #0a0e14;        /* Texto dentro de botões claros */
+
+  /* Shadows & Radius */
+  --aos-shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
+  --aos-radius-lg: 20px;
+  --aos-radius-md: 14px;
+  --aos-radius-sm: 10px;
+
+  /* Bootstrap 5 Overrides */
+  --bs-body-bg: #0a0e14 !important;
+  --bs-body-color: #f8fafc !important;
+  --bs-emphasis-color: #f8fafc !important;
+  --bs-secondary-color: #94a3b8 !important;
+  --bs-secondary-bg: #131924 !important;
+  --bs-tertiary-bg: #0f1520 !important;
+  --bs-border-color: #232d3f !important;
+  --bs-card-bg: #131924 !important;
+  --bs-card-border-color: #232d3f !important;
 }
 
-/* ======== Estilo geral ======== */
-body {
-    /*background-color: #f8f9fa;*/
-    background-color: #f4f4f4; /* Um cinza claro suave */
-    font-family: 'Nunito Sans Rounded', sans-serif;
-    color: var(--text-color-primary);
+/* Base resets & typography */
+html, body {
+  background-color: var(--aos-bg-deep) !important;
+  color: var(--aos-text-main) !important;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-
-/* Ajustes para tema Lux */
-.container h2, .container h4, .container h5 {
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-  color: var(--black); /* Títulos em preto */
+/* Page titles */
+.page-title {
+  font-size: clamp(1.4rem, 3.5vw, 1.85rem);
+  font-weight: 800;
+  color: var(--aos-text-main);
+  letter-spacing: -0.5px;
 }
 
-/* Reduz o padding vertical do navbar principal */
+.page-title i {
+  color: var(--aos-accent-green);
+  filter: drop-shadow(0 0 8px var(--aos-accent-green-glow));
+}
+
+/* Navbar AOS Style */
 .navbar {
-    padding-top: 0.5rem; /* Ajuste este valor conforme necessário, e.g., 0.3rem para menor */
-    padding-bottom: 0.5rem; /* Ajuste este valor conforme necessário */
-}
-
-/* Reduz o padding vertical dos links de navegação dentro do navbar */
-.nav-link {
-    padding-top: 0.4rem; /* Ajuste este valor conforme necessário */
-    padding-bottom: 0.4rem; /* Ajuste este valor conforme necessário */
+  background-color: rgba(10, 14, 20, 0.95) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--aos-border);
+  padding: 0.85rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
 }
 
 .navbar-brand {
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--aos-text-main) !important;
+}
+
+.navbar-brand img {
+  filter: drop-shadow(0 0 10px rgba(132, 224, 70, 0.4));
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: var(--aos-text-muted) !important;
   font-weight: 600;
-  letter-spacing: 0.2px;
-  color: var(--white) !important; /* Marca do navbar em branco */
-  text-transform: none; /* Adicione esta linha para evitar maiúsculas */
+  font-size: 0.95rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--aos-radius-sm);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-footer {
-  color: #6c757d;
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active {
+  color: var(--aos-accent-green) !important;
+  background-color: var(--aos-bg-surface-hover);
+  box-shadow: inset 0 0 0 1px var(--aos-border-highlight);
 }
 
-.alert {
-  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.08);
+.navbar-dark .navbar-nav .nav-link i {
+  color: var(--aos-accent-green);
 }
 
-/* ===== KPIs ===== */
+.navbar-toggler {
+  border-color: var(--aos-border);
+  background-color: var(--aos-bg-surface);
+}
+
+/* Cards AOS */
+.card, .kpi-card, .chart-card {
+  background-color: var(--aos-bg-surface) !important;
+  border: 1px solid var(--aos-border) !important;
+  border-radius: var(--aos-radius-lg);
+  box-shadow: var(--aos-shadow-card);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.card:hover, .kpi-card:hover, .chart-card:hover {
+  border-color: var(--aos-border-highlight) !important;
+}
+
+.card-header {
+  background-color: rgba(15, 21, 32, 0.8) !important;
+  border-bottom: 1px solid var(--aos-border) !important;
+  color: var(--aos-text-main) !important;
+  font-weight: 700;
+  padding: 1rem 1.25rem;
+}
+
+.card-body {
+  color: var(--aos-text-main) !important;
+}
+
+/* KPIs Grid (Android AOS Instrument Cluster style) */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .kpi-card {
   position: relative;
-  background: var(--background-card);
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px var(--shadow-color);
-  text-align: center;
-  transition: transform 0.2s ease;
+  padding: 1.25rem;
+  background: linear-gradient(145deg, var(--aos-bg-surface) 0%, rgba(15, 21, 32, 0.9) 100%);
+  border: 1px solid var(--aos-border) !important;
+  border-radius: var(--aos-radius-md);
 }
 
 .kpi-card:hover {
-  transform: translateY(-4px);
+  border-color: var(--aos-accent-green) !important;
+  box-shadow: 0 0 15px var(--aos-accent-green-glow);
 }
 
 .kpi-card i {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   margin-bottom: 0.5rem;
-  display: block;
+  color: var(--aos-accent-green);
 }
 
 .kpi-card h6 {
-  font-size: 0.9rem;
-  color: var(--text-color-secondary);
-  margin-bottom: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--aos-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 0.4rem;
 }
 
 .kpi-card p {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: var(--black); /* Valor do KPI em preto */
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--aos-text-main);
+  margin-bottom: 0;
+  letter-spacing: -0.5px;
 }
 
-/* Ícone de informação (popover trigger) */
 .kpi-info {
   position: absolute;
-  right: 0.5rem;
-  top: 0.5rem;
-  color: #888;
+  right: 0.85rem;
+  top: 0.85rem;
+  color: var(--aos-text-muted);
   cursor: help;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .kpi-info:hover {
-  color: var(--text-color-secondary);
+  color: var(--aos-accent-green);
 }
 
-/* Cores por categoria (adaptado) */
-.kpi-quantidade i { color: var(--blue-primary); } /* Dark Green */
-.kpi-custo i { color: var(--green-primary); }      /* Green */
-.kpi-consumo i { color: var(--yellow-warning); }    /* Amarelo */
-.kpi-economia i { color: var(--orange-accent); }   /* Laranja */
-
-/* ===== Indicadores de tendência ===== */
-.kpi-trend {
-  margin-top: 0.35rem;
-  font-size: 0.85rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
+.text-accent {
+  color: var(--aos-accent-green) !important;
 }
 
-.kpi-trend.up { color: var(--green-success); }    /* Light green */
-.kpi-trend.down { color: var(--red-danger); }  /* vermelho */
-.kpi-trend.flat { color: #6c757d; }  /* cinza */
-
-.kpi-trend .value {
-  font-weight: 600;
-}
-
-/* ===== Grid para gráficos do dashboard ===== */
+/* Charts Grid */
 .dashboard-charts {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: 1.3rem;
+  margin-top: 1.5rem;
 }
 
 .chart-card {
-  background: var(--background-card);
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px var(--shadow-color);
+  padding: 1.3rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
 .chart-card h6 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.8rem;
-  color: var(--black); /* Título do gráfico em preto */
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  color: var(--aos-text-main);
 }
 
 .chart-container {
@@ -169,7 +226,226 @@ footer {
   position: relative;
 }
 
-/* ===== Responsividade ===== */
+/* Buttons */
+.btn {
+  border-radius: var(--aos-radius-sm);
+  font-weight: 700;
+  padding: 0.6rem 1.2rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary {
+  background-color: var(--aos-accent-green) !important;
+  border-color: var(--aos-accent-green) !important;
+  color: var(--aos-text-dark) !important;
+  box-shadow: 0 4px 14px var(--aos-accent-green-glow);
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: var(--aos-accent-green-hover) !important;
+  border-color: var(--aos-accent-green-hover) !important;
+  color: var(--aos-text-dark) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--aos-accent-green-glow);
+}
+
+.btn-secondary, .btn-outline-secondary {
+  background-color: var(--aos-bg-input) !important;
+  border: 1px solid var(--aos-border) !important;
+  color: var(--aos-text-main) !important;
+}
+
+.btn-secondary:hover, .btn-outline-secondary:hover {
+  background-color: var(--aos-bg-surface-hover) !important;
+  border-color: var(--aos-accent-green) !important;
+  color: var(--aos-accent-green) !important;
+}
+
+.btn-danger {
+  background-color: rgba(248, 113, 113, 0.15) !important;
+  border: 1px solid var(--aos-accent-red) !important;
+  color: var(--aos-accent-red) !important;
+}
+
+.btn-danger:hover {
+  background-color: var(--aos-accent-red) !important;
+  color: #ffffff !important;
+}
+
+/* Forms & Inputs */
+.form-control, .form-select, input, select, textarea {
+  background-color: var(--aos-bg-input) !important;
+  border: 1px solid var(--aos-border) !important;
+  color: var(--aos-text-main) !important;
+  border-radius: var(--aos-radius-sm);
+  padding: 0.65rem 0.9rem;
+}
+
+.form-control:focus, .form-select:focus, input:focus, select:focus, textarea:focus {
+  background-color: var(--aos-bg-input) !important;
+  border-color: var(--aos-accent-green) !important;
+  color: var(--aos-text-main) !important;
+  box-shadow: 0 0 0 3px var(--aos-accent-green-glow) !important;
+  outline: none;
+}
+
+.form-control::placeholder {
+  color: var(--aos-text-muted) !important;
+}
+
+.form-label {
+  color: var(--aos-text-muted) !important;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.4rem;
+}
+
+.input-group-text {
+  background-color: var(--aos-bg-surface) !important;
+  border: 1px solid var(--aos-border) !important;
+  color: var(--aos-text-muted) !important;
+}
+
+/* Crispy Forms & Help Text */
+.form-text, .help-block, .invalid-feedback {
+  color: var(--aos-text-muted) !important;
+}
+
+.invalid-feedback {
+  color: var(--aos-accent-red) !important;
+}
+
+/* Tables */
+.table {
+  --bs-table-bg: transparent !important;
+  --bs-table-color: var(--aos-text-main) !important;
+  color: var(--aos-text-main) !important;
+  border-color: var(--aos-border) !important;
+}
+
+.table thead th {
+  background-color: rgba(15, 21, 32, 0.95) !important;
+  color: var(--aos-text-muted) !important;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  border-bottom: 1px solid var(--aos-border) !important;
+  padding: 0.95rem 1rem;
+}
+
+.table tbody tr {
+  background-color: var(--aos-bg-surface) !important;
+  border-bottom: 1px solid var(--aos-border) !important;
+  transition: background-color 0.15s ease;
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--aos-bg-surface-hover) !important;
+  color: var(--aos-text-main) !important;
+}
+
+.table td {
+  padding: 0.95rem 1rem;
+}
+
+/* Badges */
+.badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.45em 0.85em;
+  border-radius: 6px;
+}
+
+.badge.bg-success {
+  background-color: var(--aos-accent-green) !important;
+  color: var(--aos-text-dark) !important;
+}
+
+.badge.bg-secondary {
+  background-color: var(--aos-bg-input) !important;
+  border: 1px solid var(--aos-border) !important;
+  color: var(--aos-text-muted) !important;
+}
+
+/* Alerts & Popovers */
+.alert {
+  background-color: var(--aos-bg-surface) !important;
+  border: 1px solid var(--aos-border) !important;
+  color: var(--aos-text-main) !important;
+  border-radius: var(--aos-radius-md);
+  box-shadow: var(--aos-shadow-card);
+}
+
+.alert-info {
+  border-left: 4px solid var(--aos-accent-blue) !important;
+}
+
+.alert-success {
+  border-left: 4px solid var(--aos-accent-green) !important;
+}
+
+.alert-warning {
+  border-left: 4px solid var(--aos-accent-yellow) !important;
+}
+
+.alert-danger {
+  border-left: 4px solid var(--aos-accent-red) !important;
+}
+
+.popover {
+  background-color: var(--aos-bg-surface) !important;
+  border: 1px solid var(--aos-border-highlight) !important;
+  border-radius: var(--aos-radius-md) !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7) !important;
+}
+
+.popover-header {
+  background-color: var(--aos-bg-deep) !important;
+  color: var(--aos-accent-green) !important;
+  font-weight: 700;
+  border-bottom: 1px solid var(--aos-border) !important;
+}
+
+.popover-body {
+  color: var(--aos-text-main) !important;
+}
+
+.bs-popover-auto[data-popper-placement^=top]>.popover-arrow::after,
+.bs-popover-top>.popover-arrow::after {
+  border-top-color: var(--aos-bg-surface) !important;
+}
+
+/* Pagination */
+.page-link {
+  background-color: var(--aos-bg-input) !important;
+  border-color: var(--aos-border) !important;
+  color: var(--aos-text-main) !important;
+  border-radius: 8px !important;
+}
+
+.page-item.active .page-link {
+  background-color: var(--aos-accent-green) !important;
+  border-color: var(--aos-accent-green) !important;
+  color: var(--aos-text-dark) !important;
+}
+
+.page-link:hover {
+  background-color: var(--aos-bg-surface-hover) !important;
+  border-color: var(--aos-accent-green) !important;
+  color: var(--aos-accent-green) !important;
+}
+
+/* Footer */
+footer {
+  color: var(--aos-text-muted);
+  border-top: 1px solid var(--aos-border);
+  padding-top: 1.8rem;
+}
+
+/* Responsiveness */
 @media (max-width: 992px) {
   .kpi-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -183,140 +459,4 @@ footer {
   .kpi-grid {
     grid-template-columns: 1fr;
   }
-}
-
-
-/* ======== Cards ======== */
-.card {
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: var(--background-card);
-}
-.card-header {
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    background-color: var(--white); /* Garante que o header use o background da paleta */
-    color: var(--black); /* Título do card header em preto */
-}
-.card.shadow-sm {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
-
-/* ======== Botões ======== */
-.btn {
-    border-radius: 6px;
-    font-weight: 500;
-    transition: all 0.2s ease-in-out;
-}
-
-/* Adaptação para botões primários do Bootstrap */
-.btn-primary {
-    background-color: var(--darkgreen-primary);
-    border-color: var(--darkgreen-primary);
-}
-
-.btn:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* ======== Tabela ======== */
-.table {
-    font-size: 0.95rem;
-}
-.table thead th {
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-    color: var(--white); /* Cabeçalho da tabela em branco */
-}
-.table-hover tbody tr:hover {
-    background-color: #f1f3f5;
-    cursor: pointer;
-}
-
-/* ======== Paginação ======== */
-.badge {
-    font-size: 0.9rem;
-    padding: 0.5em 0.8em;
-}
-.btn-outline-primary {
-    border-width: 2px;
-    color: var(--darkgreen-primary);
-    border-color: var(--darkgreen-primary);
-}
-.btn-outline-primary:hover {
-    background-color: var(--darkgreen-primary);
-    color: var(--white);
-}
-
-/* ======== Spinner ======== */
-#loading-spinner .spinner-border {
-    width: 3rem;
-    height: 3rem;
-    color: var(--green-dark);
-}
-
-/* ======== Modal ======== */
-.modal-header {
-    font-weight: 600;
-}
-.modal-header.bg-warning {
-    background-color: var(--yellow-warning) !important;
-}
-.modal-header.bg-danger {
-    background-color: var(--red-danger) !important;
-}
-.modal-title i {
-    margin-right: 8px;
-}
-
-/* ======== Toast ======== */
-#toast-container .toast {
-    border-radius: 6px;
-    font-size: 0.9rem;
-    padding: 0.75em 1em;
-}
-
-/* ======== Hover nos cards ======== */
-.filters-bar .card:hover,
-.card.shadow-sm:hover {
-    transform: translateY(-4px);
-    transition: transform 0.2s ease;
-}
-
-/* ======== Responsividade Adicional (Mobile Improvements) ======== */
-
-/* Tipografia Fluida */
-.page-title {
-    font-size: clamp(1.4rem, 4vw, 1.8rem); /* Escala entre 1.4rem e 1.8rem */
-    font-weight: 600;
-    margin-bottom: 2rem;
-    color: var(--black);
-}
-
-/* Gráficos em Mobile */
-@media (max-width: 768px) {
-    .chart-container {
-        height: 250px; /* Reduz altura em telas menores */
-    }
-}
-
-/* Melhora em alvos de toque (Touch Targets) */
-.btn, .form-control, .form-select, .page-link {
-    padding: 0.5rem 0.8rem; /* Aumenta área de toque levemente */
-}
-
-.page-link {
-    font-size: 1rem;
-    padding: 0.5rem 0.85rem;
-}
-
-
-/* ======== Flags ======== */
-/* Defina o tamanho e, opcionalmente, o alinhamento vertical para as bandeiras */
-.flag-icon {
-    width: 24px; /* Tamanho desejado */
-    height: auto; /* Mantém a proporção */
-    vertical-align: middle; /* Alinha verticalmente com o texto */
 }

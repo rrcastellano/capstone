@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0004_secure_rls'),
+        ('core', '0005_recharge_latitude_longitude'),
     ]
 
     operations = [
@@ -22,15 +22,5 @@ class Migration(migrations.Migration):
             model_name='recharge',
             name='tipo_recarga',
             field=models.CharField(blank=True, max_length=10, null=True),
-        ),
-        migrations.AddField(
-            model_name='recharge',
-            name='latitude',
-            field=models.FloatField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='recharge',
-            name='longitude',
-            field=models.FloatField(blank=True, null=True),
         ),
     ]

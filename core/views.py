@@ -179,11 +179,21 @@ def validate_csv_and_parse(file_storage):
             if not tipo_recarga:
                 raise ValueError(_("Campo 'tipo_recarga' vazio."))
 
-            lat_raw = (row.get('latitude') or "").strip().replace(',', '.')
-            latitude = float(lat_raw) if lat_raw else None
+            latitude = None
+            try:
+                lat_str = row.get('latitude') or row.get('lat')
+                if lat_str and str(lat_str).strip():
+                    latitude = float(str(lat_str).strip().replace(',', '.'))
+            except Exception:
+                pass
 
-            lng_raw = (row.get('longitude') or "").strip().replace(',', '.')
-            longitude = float(lng_raw) if lng_raw else None
+            longitude = None
+            try:
+                lon_str = row.get('longitude') or row.get('lon') or row.get('lng')
+                if lon_str and str(lon_str).strip():
+                    longitude = float(str(lon_str).strip().replace(',', '.'))
+            except Exception:
+                pass
 
             rows_validos.append({
                 'data': dt,
@@ -699,4 +709,41 @@ def settings_view(request):
     else:
         form = SettingsForm(instance=settings)
     return render(request, 'core/account.html', {'form': form})
+
+
+def delete_account(request):
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            user = request.user
+            Recharge.objects.filter(user=user).delete()
+            Settings.objects.filter(user=user).delete()
+            logout(request)
+            user.delete()
+            messages.success(request, _('Sua conta e todos os seus dados foram excluídos permanentemente.'))
+            return redirect('index')
+        else:
+            req_email = request.POST.get('email', '').strip()
+            details = request.POST.get('details', '').strip()
+            if req_email:
+                ContactLog.objects.create(
+                    name='Solicitação de Exclusão de Conta',
+                    email=req_email,
+                    message=f'Solicitação de exclusão para o e-mail: {req_email}. Detalhes: {details}',
+                    status='Pendente'
+                )
+                messages.success(
+                    request,
+                    _('Sua solicitação de exclusão foi recebida com sucesso! Processaremos o pedido em até 48 horas.')
+                )
+            else:
+                messages.error(request, _('Por favor, informe seu e-mail de cadastro.'))
+            return redirect('delete_account')
+
+    return render(request, 'core/delete_account.html')
+
+
+def privacy_policy(request):
+    return render(request, 'core/privacy_policy.html')
+
+
 

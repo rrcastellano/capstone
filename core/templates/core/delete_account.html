@@ -1,0 +1,138 @@
+{% extends 'core/layout.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9 col-xl-8">
+
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+      <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle mb-3" style="width: 72px; height: 72px;">
+        <i class="fas fa-user-slash fa-2x"></i>
+      </div>
+      <h1 class="fw-bold text-light">{% trans "Exclusão de Conta e Dados de Usuário" %}</h1>
+      <p class="text-muted fs-5">
+        {% trans "Informações sobre como solicitar a exclusão permanente da sua conta e de todos os seus dados armazenados no EVChargeLog." %}
+      </p>
+    </div>
+
+    <!-- Data Privacy Explanation Card -->
+    <div class="card bg-dark border-secondary shadow-lg mb-4">
+      <div class="card-header bg-dark border-secondary py-3">
+        <h5 class="card-title text-light mb-0">
+          <i class="fas fa-shield-alt text-success me-2"></i>{% trans "Política de Retenção e Exclusão de Dados" %}
+        </h5>
+      </div>
+      <div class="card-body">
+        <p class="card-text text-secondary">
+          {% trans "No EVChargeLog, levamos a sua privacidade a sério. Em conformidade com as diretrizes do Google Play e as leis de proteção de dados (LGPD/GDPR), você tem o direito de excluir sua conta e remover permanentemente todas as suas informações de nossos servidores." %}
+        </p>
+
+        <h6 class="fw-bold text-light mt-4 mb-3">{% trans "Quais dados são coletados e armazenados?" %}</h6>
+        <ul class="text-secondary mb-4">
+          <li><strong>{% trans "Informações de Cadastro:" %}</strong> {% trans "Seu endereço de e-mail de login e identificador único de usuário." %}</li>
+          <li><strong>{% trans "Registros de Recarga EV:" %}</strong> {% trans "kWh consumidos, custos de recarga, odômetro do veículo e observações digitadas." %}</li>
+          <li><strong>{% trans "Localização de Postos:" %}</strong> {% trans "Nome do local e coordenadas geográficas (latitude e longitude) informados para mapeamento." %}</li>
+          <li><strong>{% trans "Configurações de Preferências:" %}</strong> {% trans "Moeda selecionada, consumo médio estimado e tarifa padrão." %}</li>
+        </ul>
+
+        <h6 class="fw-bold text-light mb-3">{% trans "O que acontece ao excluir sua conta?" %}</h6>
+        <div class="alert alert-warning border-warning bg-dark text-warning mb-0" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>{% trans "Ação Irreversível:" %}</strong> {% trans "Ao confirmar a exclusão, todos os seus registros de recarga, estatísticas, configurações e perfil de acesso serão apagados permanentemente de nosso banco de dados no Supabase e servidores do EVChargeLog. Nenhum dado residual é mantido." %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Deletion Mechanism for Authenticated Users -->
+    {% if user.is_authenticated %}
+    <div class="card bg-dark border-danger shadow-lg mb-4">
+      <div class="card-header bg-danger text-white py-3">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-user-times me-2"></i>{% trans "Excluir Conta Logada Agora" %}
+        </h5>
+      </div>
+      <div class="card-body">
+        <p class="text-secondary">
+          {% trans "Você está autenticado como" %} <strong class="text-light">{{ user.email }}</strong>. {% trans "Para apagar sua conta e todos os registros imediatamente, clique no botão abaixo." %}
+        </p>
+        <button type="button" class="btn btn-danger btn-lg px-4" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+          <i class="fas fa-trash-alt me-2"></i>{% trans "Excluir Minha Conta Permanentemente" %}
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Confirmation -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border-secondary">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-danger" id="confirmDeleteModalLabel">
+              <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Confirmar Exclusão Definitiva" %}
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-secondary">
+            {% trans "Tem certeza absoluta de que deseja excluir sua conta" %} <strong class="text-light">{{ user.email }}</strong>?
+            {% trans "Todas as suas recargas e dados salvos serão removidos imediatamente sem possibilidade de recuperação." %}
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancelar" %}</button>
+            <form method="post" action="{% url 'delete_account' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">{% trans "Sim, Excluir Tudo Agora" %}</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% else %}
+
+    <!-- Deletion Request Form for Unauthenticated Users -->
+    <div class="card bg-dark border-secondary shadow-lg mb-4">
+      <div class="card-header bg-dark border-secondary py-3">
+        <h5 class="card-title text-light mb-0">
+          <i class="fas fa-paper-plane me-2 text-info"></i>{% trans "Solicitar Exclusão de Conta (Sem Fazer Login)" %}
+        </h5>
+      </div>
+      <div class="card-body">
+        <p class="text-secondary mb-4">
+          {% trans "Se você não tem acesso à sua senha ou deseja solicitar a exclusão manual da sua conta e dados pelo suporte, informe seu e-mail cadastrado abaixo." %}
+        </p>
+
+        <form method="post" action="{% url 'delete_account' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="id_email" class="form-label text-light fw-semibold">{% trans "Endereço de E-mail Cadastrado" %}</label>
+            <input type="email" name="email" id="id_email" class="form-control bg-body-tertiary text-light border-secondary" placeholder="exemplo@email.com" required>
+          </div>
+
+          <div class="mb-4">
+            <label for="id_details" class="form-label text-light fw-semibold">{% trans "Observações Adicionais (Opcional)" %}</label>
+            <textarea name="details" id="id_details" rows="3" class="form-control bg-body-tertiary text-light border-secondary" placeholder="{% trans "Informe qualquer detalhe relevante para identificarmos seu cadastro..." %}"></textarea>
+          </div>
+
+          <div class="d-flex flex-wrap gap-3 align-items-center">
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="fas fa-paper-plane me-2"></i>{% trans "Enviar Solicitação de Exclusão" %}
+            </button>
+            <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-sign-in-alt me-2"></i>{% trans "Prefere Fazer Login e Excluir Instanciadamente?" %}
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Footer Support Info -->
+    <div class="text-center text-muted mb-5">
+      <p class="mb-1">{% trans "Dúvidas adicionais sobre privacidade?" %}</p>
+      <p>{% trans "Fale conosco pelo e-mail:" %} <a href="mailto:contato@evchargelog.com" class="text-success fw-bold">contato@evchargelog.com</a></p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -24,4 +24,6 @@ urlpatterns = [
     path('api/recharges/<int:pk>/', api_views.api_recharge_detail, name='api_recharge_detail'),
     path('api/recharges/monthly/', views.api_recharges_monthly, name='api_recharges_monthly'),
     path('settings/', views.settings_view, name='settings'),
+    path('delete-account/', views.delete_account, name='delete_account'),
+    path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
 ]
