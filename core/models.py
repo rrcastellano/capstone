@@ -9,10 +9,15 @@ class Recharge(models.Model):
     isento = models.BooleanField(default=False)
     odometro = models.FloatField()
     observacoes = models.TextField(blank=True, null=True)
+    TIPO_RECARGA_CHOICES = [
+        ('AC', 'AC'),
+        ('DC', 'DC'),
+    ]
+
     local = models.CharField(max_length=100, blank=True, null=True)
     bateria_antes = models.IntegerField(blank=True, null=True)
     bateria_depois = models.IntegerField(blank=True, null=True)
-    tipo_recarga = models.CharField(max_length=10, blank=True, null=True)
+    tipo_recarga = models.CharField(max_length=10, choices=TIPO_RECARGA_CHOICES, default='AC')
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
 

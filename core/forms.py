@@ -51,6 +51,11 @@ class RegisterForm(UserCreationForm):
             user.save()
         return user
 
+TIPO_RECARGA_CHOICES = [
+    ('AC', 'AC'),
+    ('DC', 'DC'),
+]
+
 class RechargeForm(forms.ModelForm):
     data = forms.DateTimeField(
         label=_('Data'),
@@ -59,6 +64,13 @@ class RechargeForm(forms.ModelForm):
             attrs={'class': 'form-control', 'type': 'datetime-local'}
         ),
         input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d']
+    )
+    tipo_recarga = forms.ChoiceField(
+        choices=TIPO_RECARGA_CHOICES,
+        initial='AC',
+        required=True,
+        label=_('Tipo de Recarga'),
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'})
     )
 
     class Meta:
@@ -74,7 +86,7 @@ class RechargeForm(forms.ModelForm):
             'kwh': _('kWh'),
             'custo': _('Custo'),
             'isento': _('Isento'),
-            'tipo_recarga': _('Tipo de Recarga (AC/DC)'),
+            'tipo_recarga': _('Tipo de Recarga'),
             'bateria_antes': _('Bateria Antes (%)'),
             'bateria_depois': _('Bateria Depois (%)'),
             'local': _('Local'),
@@ -87,7 +99,6 @@ class RechargeForm(forms.ModelForm):
             'kwh': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'custo': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'isento': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'tipo_recarga': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'AC / DC'}),
             'bateria_antes': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100, 'placeholder': '%'}),
             'bateria_depois': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100, 'placeholder': '%'}),
             'local': forms.TextInput(attrs={'class': 'form-control'}),

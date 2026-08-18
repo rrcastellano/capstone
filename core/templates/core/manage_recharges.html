@@ -79,7 +79,10 @@
                 <tr>
                     <td class="fw-semibold">{{ r.data|date_fmt }}</td>
                     <td>{{ r.local|default:"-" }}</td>
-                    <td class="text-accent fw-bold">{{ r.kwh }} kWh</td>
+                    <td>
+                        <span class="text-accent fw-bold">{{ r.kwh }} kWh</span>
+                        {% if r.tipo_recarga %}<span class="badge bg-secondary ms-1 small">{{ r.tipo_recarga }}</span>{% endif %}
+                    </td>
                     <td class="fw-bold">{{ r.custo|brl }}</td>
                     <td class="d-none d-md-table-cell text-secondary">{{ r.odometro|default:"-" }} km</td>
                     <td>
