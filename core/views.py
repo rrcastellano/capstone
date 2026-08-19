@@ -149,12 +149,31 @@ def validate_csv_and_parse(file_storage):
             if not data_str:
                 raise ValueError(_("Campo 'data' vazio."))
             
-            from datetime import datetime
-            try:
-                # Attempt ISO
-                dt = datetime.fromisoformat(data_str.replace(' ', 'T'))
-            except ValueError:
-                raise ValueError(_("Formato de data inválido (Use AAAA-MM-DD HH:MM)."))
+            from django.utils import timezone
+            from django.utils.dateparse import parse_datetime
+            from datetime import datetime, timezone as dt_timezone
+            
+            parsed_dt = parse_datetime(data_str)
+            if parsed_dt:
+                dt = parsed_dt
+            else:
+                try:
+                    dt = datetime.fromisoformat(data_str.replace('Z', '+00:00'))
+                except ValueError:
+                    try:
+                        dt = datetime.strptime(data_str, "%Y-%m-%d %H:%M:%S")
+                    except ValueError:
+                        try:
+                            dt = datetime.strptime(data_str, "%Y-%m-%d %H:%M")
+                        except ValueError:
+                            try:
+                                dt = datetime.strptime(data_str, "%d/%m/%Y %H:%M")
+                            except ValueError:
+                                raise ValueError(_("Formato de data inválido (Use AAAA-MM-DD HH:MM)."))
+
+            if timezone.is_naive(dt):
+                dt = timezone.make_aware(dt, timezone.get_current_timezone())
+            dt = dt.astimezone(dt_timezone.utc)
 
             kwh = float((row.get('kwh') or "").replace(',', '.'))
             custo = float((row.get('custo') or "").replace(',', '.'))
@@ -289,22 +308,27 @@ def manage_recharges(request):
 
     recharge_list = Recharge.objects.filter(user=request.user)
 
+    from django.utils import timezone
+
     if periodo_30d == '30d':
-        data_30_dias_atras = datetime.datetime.now() - datetime.timedelta(days=30)
+        data_30_dias_atras = timezone.now() - datetime.timedelta(days=30)
         recharge_list = recharge_list.filter(data__gte=data_30_dias_atras)
     else:
+        current_tz = timezone.get_current_timezone()
         # Date filters
         if data_inicio:
             try:
-                dt_ini = datetime.datetime.strptime(data_inicio, "%Y-%m-%d")
+                dt_ini_naive = datetime.datetime.strptime(data_inicio, "%Y-%m-%d")
+                dt_ini = timezone.make_aware(dt_ini_naive, current_tz)
                 recharge_list = recharge_list.filter(data__gte=dt_ini)
             except ValueError:
                 pass
         
         if data_fim:
             try:
-                # Add 23:59:59 to include the end date fully
-                dt_fim = datetime.datetime.strptime(data_fim, "%Y-%m-%d") + datetime.timedelta(days=1, microseconds=-1)
+                # Inclui o dia final completo até 23:59:59.999999 no fuso local
+                dt_fim_naive = datetime.datetime.strptime(data_fim, "%Y-%m-%d") + datetime.timedelta(days=1, microseconds=-1)
+                dt_fim = timezone.make_aware(dt_fim_naive, current_tz)
                 recharge_list = recharge_list.filter(data__lte=dt_fim)
             except ValueError:
                 pass
@@ -357,9 +381,10 @@ def manage_recharges(request):
             bat_depois = f"{r.bateria_depois}%" if r.bateria_depois is not None else ""
             lat = r.latitude if r.latitude is not None else ""
             lng = r.longitude if r.longitude is not None else ""
+            local_dt = timezone.localtime(r.data) if timezone.is_aware(r.data) else r.data
 
             writer.writerow([
-                r.data.strftime("%Y-%m-%d %H:%M"),
+                local_dt.strftime("%Y-%m-%d %H:%M"),
                 r.local or "",
                 r.kwh,
                 r.custo,
@@ -515,9 +540,12 @@ def dashboard(request):
 def api_recharges_monthly(request):
     from django.http import JsonResponse
     from collections import defaultdict
+    from django.utils import timezone
+
     # Helpers
     def _to_month(dt):
-        return dt.strftime("%Y-%m")
+        local_dt = timezone.localtime(dt) if timezone.is_aware(dt) else dt
+        return local_dt.strftime("%Y-%m")
 
     user = request.user
     
@@ -754,6 +782,11 @@ def delete_account(request):
 
 def privacy_policy(request):
     return render(request, 'core/privacy_policy.html')
+
+
+@login_required
+def map_view(request):
+    return render(request, 'core/map.html')
 
 
 

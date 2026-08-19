@@ -55,6 +55,12 @@
             </a>
           </li>
           <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'map_view' %}active{% endif %}"
+              href="{% url 'map_view' %}">
+              <i class="fas fa-map-location-dot me-1"></i> {% trans "Mapa" %}
+            </a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.url_name == 'manage_recharges' %}active{% endif %}"
               href="{% url 'manage_recharges' %}">
               <i class="fas fa-list me-1"></i> {% trans "Histórico" %}
@@ -197,6 +203,9 @@
 
   <!-- Chart.js global -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- EVChargeLog DateTime & Timezone Utils -->
+  <script src="{% static 'core/js/datetime_utils.js' %}?v=1"></script>
 
   {% block scripts %}{% endblock %}
 

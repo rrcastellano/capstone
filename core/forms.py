@@ -63,7 +63,18 @@ class RechargeForm(forms.ModelForm):
             format='%Y-%m-%dT%H:%M',
             attrs={'class': 'form-control', 'type': 'datetime-local'}
         ),
-        input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d']
+        input_formats=[
+            '%Y-%m-%dT%H:%M:%S.%fZ',
+            '%Y-%m-%dT%H:%M:%SZ',
+            '%Y-%m-%dT%H:%M:%S%z',
+            '%Y-%m-%dT%H:%M%z',
+            '%Y-%m-%dT%H:%M:%S',
+            '%Y-%m-%dT%H:%M',
+            '%Y-%m-%d %H:%M:%S',
+            '%Y-%m-%d %H:%M',
+            '%Y-%m-%d',
+            'iso-8601'
+        ]
     )
     tipo_recarga = forms.ChoiceField(
         choices=TIPO_RECARGA_CHOICES,
@@ -115,6 +126,32 @@ class RechargeForm(forms.ModelForm):
             'longitude': forms.NumberInput(attrs={'class': 'form-control', 'step': 'any', 'placeholder': _('Opcional...')}),
             'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': _('Opcional...')}),
         }
+
+    def clean_data(self):
+        data_val = self.cleaned_data.get('data')
+        if not data_val:
+            return data_val
+
+        from django.utils import timezone
+        import datetime
+
+        if isinstance(data_val, str):
+            from django.utils.dateparse import parse_datetime
+            parsed = parse_datetime(data_val)
+            if parsed:
+                data_val = parsed
+            else:
+                try:
+                    data_val = datetime.datetime.fromisoformat(data_val.replace('Z', '+00:00'))
+                except Exception:
+                    pass
+
+        if isinstance(data_val, datetime.datetime):
+            if timezone.is_naive(data_val):
+                data_val = timezone.make_aware(data_val, timezone.get_current_timezone())
+            return data_val.astimezone(datetime.timezone.utc)
+
+        return data_val
 
     def clean(self):
         cleaned_data = super().clean()

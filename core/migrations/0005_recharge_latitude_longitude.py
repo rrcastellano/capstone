@@ -2,6 +2,28 @@
 
 from django.db import migrations, models
 
+def add_lat_long(apps, schema_editor):
+    if schema_editor.connection.vendor == 'postgresql':
+        schema_editor.execute("""
+            ALTER TABLE core_recharge ADD COLUMN IF NOT EXISTS latitude double precision;
+            ALTER TABLE core_recharge ADD COLUMN IF NOT EXISTS longitude double precision;
+        """)
+    elif schema_editor.connection.vendor == 'sqlite':
+        with schema_editor.connection.cursor() as cursor:
+            cursor.execute("PRAGMA table_info(core_recharge)")
+            cols = [row[1] for row in cursor.fetchall()]
+        if 'latitude' not in cols:
+            schema_editor.execute("ALTER TABLE core_recharge ADD COLUMN latitude real;")
+        if 'longitude' not in cols:
+            schema_editor.execute("ALTER TABLE core_recharge ADD COLUMN longitude real;")
+
+def reverse_lat_long(apps, schema_editor):
+    if schema_editor.connection.vendor == 'postgresql':
+        schema_editor.execute("""
+            ALTER TABLE core_recharge DROP COLUMN IF EXISTS latitude;
+            ALTER TABLE core_recharge DROP COLUMN IF EXISTS longitude;
+        """)
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,7 +32,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.SeparateDatabaseAndState(
-            database_operations=[],
+            database_operations=[
+                migrations.RunPython(add_lat_long, reverse_lat_long)
+            ],
             state_operations=[
                 migrations.AddField(
                     model_name='recharge',

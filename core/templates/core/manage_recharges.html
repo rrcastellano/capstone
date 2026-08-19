@@ -77,7 +77,7 @@
             <tbody>
                 {% for r in recharges %}
                 <tr>
-                    <td class="fw-semibold">{{ r.data|date_fmt }}</td>
+                    <td class="fw-semibold" data-utc="{{ r.data.isoformat }}">{{ r.data|date_fmt }}</td>
                     <td>{{ r.local|default:"-" }}</td>
                     <td>
                         <span class="text-accent fw-bold">{{ r.kwh }} kWh</span>

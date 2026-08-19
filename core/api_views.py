@@ -38,6 +38,31 @@ def api_settings(request):
     except Settings.DoesNotExist:
         return JsonResponse({"limit_kwh": 0, "limit_cost": 0})
 
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+import datetime
+
+def parse_iso_utc_datetime(val):
+    if not val:
+        return None
+    if isinstance(val, datetime.datetime):
+        dt = val
+    elif isinstance(val, str):
+        parsed = parse_datetime(val)
+        if parsed:
+            dt = parsed
+        else:
+            try:
+                dt = datetime.datetime.fromisoformat(val.replace('Z', '+00:00'))
+            except Exception:
+                raise ValueError("Formato de data inválido. Use ISO 8601 (ex: YYYY-MM-DDTHH:mm:ssZ).")
+    else:
+        raise ValueError("Data inválida.")
+
+    if timezone.is_naive(dt):
+        dt = timezone.make_aware(dt, timezone.get_current_timezone())
+    return dt.astimezone(datetime.timezone.utc)
+
 @csrf_exempt
 @login_required
 def api_recharge_list(request):
@@ -45,9 +70,10 @@ def api_recharge_list(request):
         recharges = Recharge.objects.filter(user=request.user).order_by('-data')
         data = []
         for r in recharges:
+            dt_iso = r.data.isoformat() if hasattr(r.data, 'isoformat') else str(r.data)
             data.append({
                 "id": r.id,
-                "data": r.data.isoformat(),
+                "data": dt_iso,
                 "kwh": r.kwh,
                 "custo": r.custo,
                 "isento": r.isento,
@@ -65,6 +91,11 @@ def api_recharge_list(request):
     elif request.method == "POST":
         try:
             body = json.loads(request.body)
+
+            data_raw = body.get("data")
+            if not data_raw:
+                return JsonResponse({"status": "error", "message": "O campo data é obrigatório."}, status=400)
+            data_dt = parse_iso_utc_datetime(data_raw)
 
             bat_antes_raw = body.get("bateria_antes")
             bat_depois_raw = body.get("bateria_depois")
@@ -89,7 +120,7 @@ def api_recharge_list(request):
 
             recharge = Recharge.objects.create(
                 user=request.user,
-                data=body.get("data"),
+                data=data_dt,
                 kwh=float(body.get("kwh", 0)),
                 custo=float(body.get("custo", 0)),
                 isento=body.get("isento", False),
@@ -115,9 +146,10 @@ def api_recharge_detail(request, pk):
         return JsonResponse({"status": "error", "message": "Recharge not found"}, status=404)
 
     if request.method == "GET":
+        dt_iso = recharge.data.isoformat() if hasattr(recharge.data, 'isoformat') else str(recharge.data)
         return JsonResponse({
             "id": recharge.id,
-            "data": recharge.data.isoformat(),
+            "data": dt_iso,
             "kwh": recharge.kwh,
             "custo": recharge.custo,
             "isento": recharge.isento,
@@ -134,7 +166,8 @@ def api_recharge_detail(request, pk):
     elif request.method == "PUT":
         try:
             body = json.loads(request.body)
-            recharge.data = body.get("data", recharge.data)
+            if "data" in body and body["data"]:
+                recharge.data = parse_iso_utc_datetime(body["data"])
             recharge.kwh = float(body.get("kwh", recharge.kwh))
             recharge.custo = float(body.get("custo", recharge.custo))
             recharge.isento = body.get("isento", recharge.isento)

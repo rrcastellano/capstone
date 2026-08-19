@@ -2,6 +2,63 @@
 
 from django.db import migrations
 
+def apply_rls(apps, schema_editor):
+    if schema_editor.connection.vendor != 'postgresql':
+        return
+
+    sql = """
+    DO $$ 
+    DECLARE 
+        tables text[] := ARRAY[
+            'auth_group', 'auth_group_permissions', 'auth_permission', 
+            'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
+            'contact_logs', 'core_contactlog', 'core_recharge', 'core_settings',
+            'django_admin_log', 'django_content_type', 'django_migrations', 
+            'django_session', 'recharges', 'settings', 'users'
+        ];
+        t text;
+    BEGIN
+        FOREACH t IN ARRAY tables LOOP
+            -- 1. Enable RLS (idempotent)
+            EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
+            
+            -- 2. Create Policy for postgres/service_role (if not exists)
+            BEGIN
+                EXECUTE format('CREATE POLICY "allow_all_app_%I" ON public.%I FOR ALL TO postgres, service_role USING (true) WITH CHECK (true)', t, t);
+            EXCEPTION WHEN duplicate_object THEN 
+                NULL; -- Policy already exists, ignore
+            END;
+        END LOOP;
+    END $$;
+    """
+    schema_editor.execute(sql)
+
+def reverse_rls(apps, schema_editor):
+    if schema_editor.connection.vendor != 'postgresql':
+        return
+
+    reverse_sql = """
+    DO $$ 
+    DECLARE 
+        tables text[] := ARRAY[
+            'auth_group', 'auth_group_permissions', 'auth_permission', 
+            'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
+            'contact_logs', 'core_contactlog', 'core_recharge', 'core_settings',
+            'django_admin_log', 'django_content_type', 'django_migrations', 
+            'django_session', 'recharges', 'settings', 'users'
+        ];
+        t text;
+    BEGIN
+        FOREACH t IN ARRAY tables LOOP
+            -- Drop Policy
+            EXECUTE format('DROP POLICY IF EXISTS "allow_all_app_%I" ON public.%I', t, t);
+            -- Disable RLS
+            EXECUTE format('ALTER TABLE public.%I DISABLE ROW LEVEL SECURITY', t);
+        END LOOP;
+    END $$;
+    """
+    schema_editor.execute(reverse_sql)
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -13,54 +70,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql="""
-            -- Enable RLS and Create Policies for ALL public tables
-            -- Using DO block to handle "policy already exists" gracefully
-
-            DO $$ 
-            DECLARE 
-                tables text[] := ARRAY[
-                    'auth_group', 'auth_group_permissions', 'auth_permission', 
-                    'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
-                    'contact_logs', 'core_contactlog', 'core_recharge', 'core_settings',
-                    'django_admin_log', 'django_content_type', 'django_migrations', 
-                    'django_session', 'recharges', 'settings', 'users'
-                ];
-                t text;
-            BEGIN
-                FOREACH t IN ARRAY tables LOOP
-                    -- 1. Enable RLS (idempotent)
-                    EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
-                    
-                    -- 2. Create Policy for postgres/service_role (if not exists)
-                    BEGIN
-                        EXECUTE format('CREATE POLICY "allow_all_app_%I" ON public.%I FOR ALL TO postgres, service_role USING (true) WITH CHECK (true)', t, t);
-                    EXCEPTION WHEN duplicate_object THEN 
-                        NULL; -- Policy already exists, ignore
-                    END;
-                END LOOP;
-            END $$;
-            """,
-            reverse_sql="""
-            DO $$ 
-            DECLARE 
-                tables text[] := ARRAY[
-                    'auth_group', 'auth_group_permissions', 'auth_permission', 
-                    'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
-                    'contact_logs', 'core_contactlog', 'core_recharge', 'core_settings',
-                    'django_admin_log', 'django_content_type', 'django_migrations', 
-                    'django_session', 'recharges', 'settings', 'users'
-                ];
-                t text;
-            BEGIN
-                FOREACH t IN ARRAY tables LOOP
-                    -- Drop Policy
-                    EXECUTE format('DROP POLICY IF EXISTS "allow_all_app_%I" ON public.%I', t, t);
-                    -- Disable RLS
-                    EXECUTE format('ALTER TABLE public.%I DISABLE ROW LEVEL SECURITY', t);
-                END LOOP;
-            END $$;
-            """
-        )
+        migrations.RunPython(apply_rls, reverse_rls),
     ]

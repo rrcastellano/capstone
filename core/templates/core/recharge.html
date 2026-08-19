@@ -58,3 +58,40 @@
   </div>
 </div>
 {% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const dataInput = document.getElementById('id_data');
+    if (!dataInput) return;
+
+    {% if form.instance.pk and form.instance.data %}
+      const initialUtc = "{{ form.instance.data.isoformat }}";
+      if (initialUtc && window.DateTimeUtils) {
+        dataInput.value = window.DateTimeUtils.toLocalDatetimeInputValue(initialUtc);
+      }
+    {% endif %}
+
+    const formEl = dataInput.closest('form');
+    if (formEl) {
+      formEl.addEventListener('submit', function () {
+        if (dataInput.value && window.DateTimeUtils) {
+          const utcIso = window.DateTimeUtils.localInputToUtcIso(dataInput.value);
+          if (utcIso) {
+            let hiddenUtc = formEl.querySelector('input[name="_data_utc_field"]');
+            if (!hiddenUtc) {
+              hiddenUtc = document.createElement('input');
+              hiddenUtc.type = 'hidden';
+              hiddenUtc.name = 'data';
+              hiddenUtc.className = '_data_utc_field';
+              dataInput.removeAttribute('name');
+              formEl.appendChild(hiddenUtc);
+            }
+            hiddenUtc.value = utcIso;
+          }
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

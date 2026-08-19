@@ -15,6 +15,7 @@ urlpatterns = [
     path('delete-recharge/<int:pk>/', views.delete_recharge, name='delete_recharge'),
     path('delete-all-recharges/', views.delete_all_recharges, name='delete_all_recharges'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('map/', views.map_view, name='map_view'),
     
     # API Endpoints
     path('api/auth/login/', api_views.api_login, name='api_login'),

@@ -1,0 +1,146 @@
+{% extends 'core/layout.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="page-title m-0">
+      <i class="fas fa-map-location-dot me-2 text-accent"></i> {% trans "Mapa de Estações" %}
+    </h2>
+    <p class="text-secondary small m-0 mt-1">{% trans "Estações e locais de recarga mapeados automaticamente a partir do seu histórico." %}</p>
+  </div>
+  <a href="{% url 'recharge' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-1"></i> {% trans "Nova Recarga" %}
+  </a>
+</div>
+
+<div class="map-view-container">
+  <!-- Painel Flutuante de Busca e Filtros Rápidos -->
+  <div class="map-floating-search-bar">
+    <div class="input-group input-group-sm search-input-group">
+      <span class="input-group-text bg-dark border-0 text-secondary">
+        <i class="fas fa-search"></i>
+      </span>
+      <input type="text" id="map-search-input" class="form-control" placeholder="{% trans 'Buscar por local ou endereço...' %}" autocomplete="off">
+      <button type="button" id="btn-clear-map-search" class="btn btn-dark border-0 text-secondary d-none">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+      <button type="button" id="toggle-filter-dc" class="btn btn-sm btn-map-chip">
+        <i class="fas fa-bolt text-warning me-1"></i> {% trans "Recarga Rápida (DC)" %}
+      </button>
+      <button type="button" id="toggle-filter-free" class="btn btn-sm btn-map-chip">
+        <i class="fas fa-gift text-accent me-1"></i> {% trans "Apenas Gratuitos" %}
+      </button>
+      <span id="stations-counter-badge" class="badge bg-surface text-secondary ms-auto small py-2 px-3 border border-secondary-subtle">
+        {% trans "Carregando..." %}
+      </span>
+    </div>
+  </div>
+
+  <!-- Container do Leaflet -->
+  <div id="recharges-map" class="leaflet-map-canvas"></div>
+
+  <!-- Botões de Ação Flutuantes (GPS e Fit Bounds) -->
+  <div class="map-floating-actions">
+    <button type="button" id="btn-map-gps" class="btn btn-map-action" title="{% trans 'Minha Localização' %}">
+      <i class="fas fa-crosshairs"></i>
+    </button>
+    <button type="button" id="btn-map-fit" class="btn btn-map-action" title="{% trans 'Enquadrar Todas as Estações' %}">
+      <i class="fas fa-compress-arrows-alt"></i>
+    </button>
+  </div>
+
+  <!-- Legenda Discreta no Canto Inferior Esquerdo -->
+  <div class="map-floating-legend">
+    <div class="legend-item">
+      <span class="legend-dot legend-dot-exempt"></span>
+      <span>{% trans "100% Isento" %}</span>
+    </div>
+    <div class="legend-item ms-3">
+      <span class="legend-dot legend-dot-paid"></span>
+      <span>{% trans "Recarga Paga" %}</span>
+    </div>
+  </div>
+
+  <!-- Card / Drawer Inferior de Detalhes da Estação Selecionada -->
+  <div id="station-details-drawer" class="station-details-drawer d-none">
+    <div class="drawer-header d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <h5 id="drawer-station-name" class="m-0 fw-bold text-light">{% trans "Nome do Local" %}</h5>
+          <span id="drawer-dc-badge" class="badge bg-warning text-dark small d-none"><i class="fas fa-bolt me-1"></i>DC</span>
+          <span id="drawer-exempt-badge" class="badge bg-success small d-none"><i class="fas fa-leaf me-1"></i>{% trans "Isento" %}</span>
+        </div>
+        <div class="text-secondary small">
+          <i class="fas fa-clock me-1 text-accent"></i>
+          {% trans "Última recarga:" %} <span id="drawer-last-date" class="text-light">-</span>
+        </div>
+      </div>
+      <button type="button" id="btn-close-drawer" class="btn-close btn-close-white" aria-label="{% trans 'Fechar' %}"></button>
+    </div>
+
+    <div class="row g-2 mb-3 drawer-metrics-row text-center">
+      <div class="col-4">
+        <div class="drawer-metric-box">
+          <div class="metric-label">{% trans "Recargas" %}</div>
+          <div id="drawer-metric-count" class="metric-val text-light">0</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="drawer-metric-box">
+          <div class="metric-label">{% trans "Total Entregue" %}</div>
+          <div id="drawer-metric-kwh" class="metric-val text-accent">0 <span class="unit">kWh</span></div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="drawer-metric-box">
+          <div class="metric-label">{% trans "Custo Total" %}</div>
+          <div id="drawer-metric-custo" class="metric-val text-light">R$ 0,00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ações de Rota (Google Maps e Waze) -->
+    <div class="d-flex gap-2">
+      <a id="btn-nav-google-maps" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary flex-fill d-flex align-items-center justify-content-center gap-2">
+        <i class="fab fa-google"></i>
+        <span>Google Maps</span>
+      </a>
+      <a id="btn-nav-waze" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light flex-fill d-flex align-items-center justify-content-center gap-2">
+        <i class="fab fa-waze text-info"></i>
+        <span>Waze</span>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+  window.apiRechargesUrl = "{% url 'api_recharge_list' %}";
+  window.I18nMap = {
+    loadingStations: "{% trans 'Carregando estações...' %}",
+    locationsFound: "{% trans 'locais encontrados' %}",
+    locationFound: "{% trans 'local encontrado' %}",
+    noLocationsFound: "{% trans 'Nenhum local encontrado' %}",
+    noLocationCoordinates: "{% trans 'Nenhuma recarga com coordenadas GPS encontrada no seu histórico.' %}",
+    currencySymbol: "{% trans 'R$' %}",
+    exemptLabel: "{% trans 'Isenta' %}",
+    errorLoadingData: "{% trans 'Erro ao carregar dados do mapa.' %}",
+    gpsError: "{% trans 'Não foi possível obter sua localização GPS.' %}",
+    gpsSearching: "{% trans 'Obtendo sua localização...' %}"
+  };
+</script>
+
+<script src="{% static 'core/js/map_view.js' %}?v=1"></script>
+{% endblock %}

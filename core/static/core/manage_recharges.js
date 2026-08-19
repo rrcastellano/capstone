@@ -1,21 +1,35 @@
-
 // ==================== Variáveis Globais ====================
 let currentPage = 1;
 let sortBy = 'data';
 let sortDir = 'asc';
 const pageSize = 20;
 
-// ==================== Utilitário de Data ====================
-function formatDateYMD(value) {
+// ==================== Utilitários de Data ====================
+function formatDateDisplay(value) {
     if (!value) return '';
+    if (window.DateTimeUtils) {
+        return window.DateTimeUtils.formatDateTimeLocal(value);
+    }
     const d = new Date(value);
-    if (isNaN(d)) return value;
-    return d.toISOString().slice(0, 10); // YYYY-MM-DD
+    if (isNaN(d.getTime())) return value;
+    return d.toLocaleString();
+}
+
+function formatDateInput(value) {
+    if (!value) return '';
+    if (window.DateTimeUtils) {
+        return window.DateTimeUtils.toLocalDatetimeInputValue(value);
+    }
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return value;
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 // ==================== Função para exibir Toast ====================
 function showToast(message, type = 'success') {
     const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) return;
     const toast = document.createElement('div');
     toast.className = `toast align-items-center text-bg-${type} border-0`;
     toast.setAttribute('role', 'alert');
@@ -42,84 +56,100 @@ async function loadRecharges() {
         page_size: pageSize,
         sort_by: sortBy,
         sort_dir: sortDir,
-        local: document.getElementById('filter-local').value,
-        observacoes: document.getElementById('filter-observacoes').value,
-        isento: document.getElementById('filter-isento').value,
-        date_from: document.getElementById('filter-date-from').value,
-        date_to: document.getElementById('filter-date-to').value
+        local: document.getElementById('filter-local')?.value || '',
+        observacoes: document.getElementById('filter-observacoes')?.value || '',
+        isento: document.getElementById('filter-isento')?.value || '',
+        date_from: document.getElementById('filter-date-from')?.value || '',
+        date_to: document.getElementById('filter-date-to')?.value || ''
     });
 
     try {
-        const response = await fetch(`/api/manage_recharges?${params.toString()}`);
-        if (!response.ok) throw new Error(ErrorLoadingRecharges);
+        const response = await fetch(`/api/recharges/?${params.toString()}`);
+        if (!response.ok) throw new Error(typeof ErrorLoadingRecharges !== 'undefined' ? ErrorLoadingRecharges : 'Erro ao carregar recargas');
         const data = await response.json();
 
         const tbody = document.getElementById('recharges-body');
+        if (!tbody) return;
         tbody.innerHTML = '';
 
-        if (data.items.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center">${NoRechargesFound}</td></tr>`;
-            
+        const items = Array.isArray(data) ? data : (data.items || []);
+        const total = Array.isArray(data) ? data.length : (data.total || items.length);
+
+        if (items.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center">${typeof NoRechargesFound !== 'undefined' ? NoRechargesFound : 'Nenhuma recarga encontrada.'}</td></tr>`;
         } else {
-            data.items.forEach(item => {
+            items.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.dataset.id = item.id;
+                tr.dataset.utc = item.data;
                 tr.innerHTML = `
-                    <td>${formatDateYMD(item.data)}</td>
+                    <td data-utc="${item.data}">${formatDateDisplay(item.data)}</td>
                     <td>${item.kwh}</td>
-                    <td>${CurrencySymbolBRL} ${item.custo.toFixed(2)}</td>
-                    <td>${item.isento ? YesMessage : NoMessage}</td>
-                    <td>${item.odometro.toFixed(0)}</td>
+                    <td>${typeof CurrencySymbolBRL !== 'undefined' ? CurrencySymbolBRL : 'R$'} ${(item.custo || 0).toFixed(2)}</td>
+                    <td>${item.isento ? (typeof YesMessage !== 'undefined' ? YesMessage : 'Sim') : (typeof NoMessage !== 'undefined' ? NoMessage : 'Não')}</td>
+                    <td>${(item.odometro || 0).toFixed(0)}</td>
                     <td>${item.local || ''}</td>
                     <td title="${item.observacoes || ''}">${(item.observacoes || '').substring(0, 30)}${item.observacoes && item.observacoes.length > 30 ? '...' : ''}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary btn-edit">${EditText}</button>
-                        <button class="btn btn-sm btn-outline-danger btn-delete">${DeleteText}</button>
+                        <button class="btn btn-sm btn-outline-primary btn-edit">${typeof EditText !== 'undefined' ? EditText : 'Editar'}</button>
+                        <button class="btn btn-sm btn-outline-danger btn-delete">${typeof DeleteText !== 'undefined' ? DeleteText : 'Excluir'}</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        document.getElementById('pagination-info').textContent = `${DisplayingText} ${(currentPage - 1) * pageSize + 1}–${Math.min(currentPage * pageSize, data.total)} ${OfText} ${data.total}`;
-        document.getElementById('btn-prev-page').disabled = !data.has_prev;
-        document.getElementById('btn-next-page').disabled = !data.has_next;
+        const paginationInfo = document.getElementById('pagination-info');
+        if (paginationInfo) {
+            paginationInfo.textContent = `${typeof DisplayingText !== 'undefined' ? DisplayingText : 'Exibindo'} ${(currentPage - 1) * pageSize + 1}–${Math.min(currentPage * pageSize, total)} ${typeof OfText !== 'undefined' ? OfText : 'de'} ${total}`;
+        }
+        const btnPrev = document.getElementById('btn-prev-page');
+        if (btnPrev) btnPrev.disabled = (data.has_prev !== undefined) ? !data.has_prev : currentPage <= 1;
+        const btnNext = document.getElementById('btn-next-page');
+        if (btnNext) btnNext.disabled = (data.has_next !== undefined) ? !data.has_next : (currentPage * pageSize >= total);
     } catch (error) {
         showToast(error.message, 'danger');
     }
 }
 
 // ==================== Eventos de Filtros ====================
-document.getElementById('btn-apply-filters').addEventListener('click', () => {
+document.getElementById('btn-apply-filters')?.addEventListener('click', () => {
     currentPage = 1;
     loadRecharges();
 });
 
-document.getElementById('btn-clear-filters').addEventListener('click', () => {
-    document.getElementById('filters-form').reset();
+document.getElementById('btn-clear-filters')?.addEventListener('click', () => {
+    document.getElementById('filters-form')?.reset();
     currentPage = 1;
     loadRecharges();
 });
 
-document.getElementById('btn-last-30-days').addEventListener('click', () => {
+document.getElementById('btn-last-30-days')?.addEventListener('click', () => {
     const today = new Date();
     const pastDate = new Date();
     pastDate.setDate(today.getDate() - 30);
-    document.getElementById('filter-date-from').value = pastDate.toISOString().split('T')[0];
-    document.getElementById('filter-date-to').value = today.toISOString().split('T')[0];
+
+    const fromInput = document.getElementById('filter-date-from');
+    const toInput = document.getElementById('filter-date-to');
+    if (fromInput) {
+        fromInput.value = window.DateTimeUtils ? window.DateTimeUtils.toLocalDateInputValue(pastDate) : pastDate.toLocaleDateString('en-CA');
+    }
+    if (toInput) {
+        toInput.value = window.DateTimeUtils ? window.DateTimeUtils.toLocalDateInputValue(today) : today.toLocaleDateString('en-CA');
+    }
     currentPage = 1;
     loadRecharges();
 });
 
 // ==================== Paginação ====================
-document.getElementById('btn-prev-page').addEventListener('click', () => {
+document.getElementById('btn-prev-page')?.addEventListener('click', () => {
     if (currentPage > 1) {
         currentPage--;
         loadRecharges();
     }
 });
 
-document.getElementById('btn-next-page').addEventListener('click', () => {
+document.getElementById('btn-next-page')?.addEventListener('click', () => {
     currentPage++;
     loadRecharges();
 });
@@ -139,12 +169,13 @@ document.querySelectorAll('#recharges-table th[data-sort]').forEach(th => {
 });
 
 // ==================== Modal de Edição ====================
-document.getElementById('recharges-body').addEventListener('click', (e) => {
+document.getElementById('recharges-body')?.addEventListener('click', (e) => {
     if (e.target.classList.contains('btn-edit')) {
         const tr = e.target.closest('tr');
         const id = tr.dataset.id;
+        const utcDate = tr.dataset.utc;
         document.getElementById('edit-id').value = id;
-        document.getElementById('edit-data').value = formatDateYMD(tr.children[0].textContent);
+        document.getElementById('edit-data').value = formatDateInput(utcDate || tr.children[0].textContent);
         document.getElementById('edit-kwh').value = tr.children[1].textContent;
         document.getElementById('edit-custo').value = tr.children[2].textContent.replace(/[^\d.,]/g, '').replace(',', '.');
         document.getElementById('edit-isento').checked = tr.children[3].textContent === 'Sim';
@@ -156,10 +187,13 @@ document.getElementById('recharges-body').addEventListener('click', (e) => {
     }
 });
 
-document.getElementById('btn-save-edit').addEventListener('click', async () => {
+document.getElementById('btn-save-edit')?.addEventListener('click', async () => {
     const id = document.getElementById('edit-id').value;
+    const localData = document.getElementById('edit-data').value;
+    const utcIso = window.DateTimeUtils ? window.DateTimeUtils.localInputToUtcIso(localData) : (localData ? new Date(localData).toISOString() : null);
+
     const payload = {
-        data: document.getElementById('edit-data').value,
+        data: utcIso,
         kwh: parseFloat(document.getElementById('edit-kwh').value),
         custo: parseFloat(document.getElementById('edit-custo').value),
         odometro: parseFloat(document.getElementById('edit-odometro').value),
@@ -169,23 +203,24 @@ document.getElementById('btn-save-edit').addEventListener('click', async () => {
     };
 
     try {
-        const response = await fetch(`/api/manage_recharges/${id}`, {
-            method: 'PATCH',
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        const response = await fetch(`/api/recharges/${id}/`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || ErrorSaveMessage);
+            throw new Error(errorData.message || (typeof ErrorSaveMessage !== 'undefined' ? ErrorSaveMessage : 'Erro ao salvar recarga'));
         }
 
-        showToast(RechargeUpdatedSuccess, 'success');
+        showToast(typeof RechargeUpdatedSuccess !== 'undefined' ? RechargeUpdatedSuccess : 'Recarga atualizada com sucesso', 'success');
         const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-        editModal.hide();
+        if (editModal) editModal.hide();
         loadRecharges();
     } catch (error) {
         showToast(error.message, 'danger');
@@ -193,63 +228,45 @@ document.getElementById('btn-save-edit').addEventListener('click', async () => {
 });
 
 // ==================== Modal de Exclusão ====================
-document.getElementById('recharges-body').addEventListener('click', (e) => {
+document.getElementById('recharges-body')?.addEventListener('click', (e) => {
     if (e.target.classList.contains('btn-delete')) {
         const tr = e.target.closest('tr');
         const id = tr.dataset.id;
-        document.getElementById('btn-confirm-delete').dataset.id = id;
+        const confirmBtn = document.getElementById('btn-confirm-delete');
+        if (confirmBtn) confirmBtn.dataset.id = id;
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
         deleteModal.show();
     }
 });
 
-document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+document.getElementById('btn-confirm-delete')?.addEventListener('click', async () => {
     const id = document.getElementById('btn-confirm-delete').dataset.id;
     try {
-        const response = await fetch(`/api/manage_recharges/${id}`, {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        const response = await fetch(`/api/recharges/${id}/`, {
             method: 'DELETE',
             headers: {
-                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRFToken': csrfToken
             }
         });
 
-        if (!response.ok) throw new Error(ErrorDeleteMessage);
+        if (!response.ok) throw new Error(typeof ErrorDeleteMessage !== 'undefined' ? ErrorDeleteMessage : 'Erro ao excluir recarga');
 
-        showToast(RechargeDeletedSuccess, 'success');
+        showToast(typeof RechargeDeletedSuccess !== 'undefined' ? RechargeDeletedSuccess : 'Recarga excluída com sucesso', 'success');
         const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
-        deleteModal.hide();
+        if (deleteModal) deleteModal.hide();
         loadRecharges();
     } catch (error) {
         showToast(error.message, 'danger');
     }
 });
 
-
 // ==================== Botão Exportar CSV ====================    
-/*
-document.addEventListener('DOMContentLoaded', () => {
-    const btnExport = document.getElementById('btn-export');
-    if (!btnExport) return; // evita erro se o botão não existir
-
-    btnExport.addEventListener('click', (e) => {
-        e.preventDefault(); // evita submit do form
-        const params = new URLSearchParams({
-            local: document.getElementById('filter-local')?.value || '',
-            observacoes: document.getElementById('filter-observacoes')?.value || '',
-            isento: document.getElementById('filter-isento')?.value || 'all',
-            date_from: document.getElementById('filter-date-from')?.value || '',
-            date_to: document.getElementById('filter-date-to')?.value || ''
-        });
-        window.location.href = `/export_recharges?${params.toString()}`;
-    });
-});
-*/
-
 document.addEventListener('DOMContentLoaded', () => {
   const btnExport = document.getElementById('btn-export');
   if (!btnExport) return;
 
-  btnExport.setAttribute('type', 'button'); // evita submit do form
+  btnExport.setAttribute('type', 'button');
   btnExport.addEventListener('click', (e) => {
     e.preventDefault();
 
@@ -266,8 +283,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-
 // ==================== Inicialização ====================
 document.addEventListener('DOMContentLoaded', () => {
-    loadRecharges();
+    if (document.getElementById('recharges-body')) {
+        loadRecharges();
+    }
 });
