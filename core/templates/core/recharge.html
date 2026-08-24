@@ -31,11 +31,11 @@
             </div>
           {% elif field.name == 'tipo_recarga' %}
             <label class="form-label d-block fw-semibold">{{ field.label }} <span class="text-danger">*</span></label>
-            <div class="d-flex gap-4 p-2 rounded bg-light border">
+            <div class="d-flex gap-4 p-2 px-3 rounded tipo-recarga-container">
               {% for radio in field %}
-                <div class="form-check form-check-inline m-0 d-flex align-items-center gap-1">
+                <div class="form-check form-check-inline m-0 d-flex align-items-center gap-2">
                   {{ radio.tag }}
-                  <label class="form-check-label fw-bold" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                  <label class="form-check-label fw-bold" for="{{ radio.id_for_label }}" style="cursor: pointer;">{{ radio.choice_label }}</label>
                 </div>
               {% endfor %}
             </div>

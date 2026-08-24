@@ -308,6 +308,32 @@ html, body {
   color: var(--aos-text-muted) !important;
 }
 
+/* Radio & Checkbox Containers (ex: Tipo de Recarga) */
+.tipo-recarga-container {
+  background-color: var(--aos-bg-input) !important;
+  border: 1px solid var(--aos-border) !important;
+  color: var(--aos-text-main) !important;
+}
+
+.form-check-input {
+  background-color: var(--aos-bg-surface) !important;
+  border-color: var(--aos-border) !important;
+}
+
+.form-check-input:checked {
+  background-color: var(--aos-accent-green) !important;
+  border-color: var(--aos-accent-green) !important;
+}
+
+.form-check-input:focus {
+  border-color: var(--aos-accent-green) !important;
+  box-shadow: 0 0 0 3px var(--aos-accent-green-glow) !important;
+}
+
+.form-check-label {
+  color: var(--aos-text-main) !important;
+}
+
 /* Crispy Forms & Help Text */
 .form-text, .help-block, .invalid-feedback {
   color: var(--aos-text-muted) !important;
