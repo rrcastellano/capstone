@@ -515,3 +515,13 @@ class TimezoneMigrationTests(TestCase):
         })
         self.assertEqual(resp_set.status_code, 302)
 
+        # 3. Anônimo acessando login e registro (garantindo tags de template válidas)
+        self.client.logout()
+        resp_anon_login = self.client.get('/login/')
+        self.assertEqual(resp_anon_login.status_code, 200)
+        self.assertTemplateUsed(resp_anon_login, 'core/login.html')
+
+        resp_anon_reg = self.client.get('/register/')
+        self.assertEqual(resp_anon_reg.status_code, 200)
+        self.assertTemplateUsed(resp_anon_reg, 'core/register.html')
+

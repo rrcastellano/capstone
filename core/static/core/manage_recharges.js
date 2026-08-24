@@ -83,7 +83,7 @@ async function loadRecharges() {
                 tr.dataset.id = item.id;
                 tr.dataset.utc = item.data;
                 const custoDisplay = item.isento
-                    ? `${typeof CurrencySymbolBRL !== 'undefined' ? CurrencySymbolBRL : 'R$'} 0,00 <span class="badge bg-success ms-1">ISENTO</span>`
+                    ? `${typeof CurrencySymbolBRL !== 'undefined' ? CurrencySymbolBRL : 'R$'} 0,00`
                     : `${typeof CurrencySymbolBRL !== 'undefined' ? CurrencySymbolBRL : 'R$'} ${(item.custo || 0).toFixed(2).replace('.', ',')}`;
                 const isentoBadge = item.isento
                     ? `<span class="badge bg-success">${typeof YesMessage !== 'undefined' ? YesMessage : 'Isento'}</span>`
