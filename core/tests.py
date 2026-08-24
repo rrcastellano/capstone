@@ -461,3 +461,57 @@ class TimezoneMigrationTests(TestCase):
         self.assertEqual(data_m['consumo'], [70.0])
         self.assertEqual(data_m['km'], [500.0])
 
+    def test_all_pages_render_without_500(self):
+        """Testa que todas as views e templates renderizam sem erro 500 para usuários com/sem settings."""
+        # 1. Sem settings e sem recargas
+        self.client.force_login(self.user)
+        routes = [
+            '/',
+            '/dashboard/',
+            '/recharge/',
+            '/history/',
+            '/bulk-recharge/',
+            '/settings/',
+            '/contact-us/',
+            '/map/',
+            '/privacy-policy/',
+            '/delete-account/'
+        ]
+        for route in routes:
+            resp = self.client.get(route)
+            self.assertIn(resp.status_code, [200, 302], f"Falha na rota {route}: {resp.status_code}")
+
+        # 2. Com settings e recargas
+        Settings.objects.create(
+            user=self.user,
+            preco_gasolina=6.15,
+            consumo_km_l=11.2,
+            preco_kwh_medio=2.70
+        )
+        r = Recharge.objects.create(
+            user=self.user,
+            data=timezone.now(),
+            kwh=40.0,
+            custo=0.0,
+            isento=True,
+            odometro=15000.0,
+            bateria_antes=20,
+            bateria_depois=80,
+            tipo_recarga='AC'
+        )
+        for route in routes:
+            resp = self.client.get(route)
+            self.assertIn(resp.status_code, [200, 302], f"Falha na rota {route} com dados: {resp.status_code}")
+
+        # Edit recharge page
+        resp_edit = self.client.get(f'/edit-recharge/{r.id}/')
+        self.assertEqual(resp_edit.status_code, 200)
+
+        # Settings POST
+        resp_set = self.client.post('/settings/', {
+            'preco_gasolina': '6.30',
+            'consumo_km_l': '10.5',
+            'preco_kwh_medio': '2.60'
+        })
+        self.assertEqual(resp_set.status_code, 302)
+

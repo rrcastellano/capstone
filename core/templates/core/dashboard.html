@@ -94,7 +94,10 @@
       </span>
       <i class="fas fa-gas-pump"></i>
       <h6>{% trans "Custo Gasolina / Km" %}</h6>
-      <p>{{ kpis.custo_gas_por_km | brl:3 }}<    <!-- Linha 3 -->
+      <p>{{ kpis.custo_gas_por_km | brl:3 }}</p>
+    </div>
+
+    <!-- Linha 3 -->
     <div class="kpi-card">
       <span class="kpi-info" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
         title="{% trans 'Custo Pago' %}" data-bs-content="{% trans 'Somatório dos custos desembolsados (recargas pagas).' %}">
