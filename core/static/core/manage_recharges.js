@@ -82,11 +82,17 @@ async function loadRecharges() {
                 const tr = document.createElement('tr');
                 tr.dataset.id = item.id;
                 tr.dataset.utc = item.data;
+                const custoDisplay = item.isento
+                    ? `${typeof CurrencySymbolBRL !== 'undefined' ? CurrencySymbolBRL : 'R$'} 0,00 <span class="badge bg-success ms-1">ISENTO</span>`
+                    : `${typeof CurrencySymbolBRL !== 'undefined' ? CurrencySymbolBRL : 'R$'} ${(item.custo || 0).toFixed(2).replace('.', ',')}`;
+                const isentoBadge = item.isento
+                    ? `<span class="badge bg-success">${typeof YesMessage !== 'undefined' ? YesMessage : 'Isento'}</span>`
+                    : `<span class="badge bg-secondary">${typeof NoMessage !== 'undefined' ? NoMessage : 'Pago'}</span>`;
                 tr.innerHTML = `
                     <td data-utc="${item.data}">${formatDateDisplay(item.data)}</td>
                     <td>${item.kwh}</td>
-                    <td>${typeof CurrencySymbolBRL !== 'undefined' ? CurrencySymbolBRL : 'R$'} ${(item.custo || 0).toFixed(2)}</td>
-                    <td>${item.isento ? (typeof YesMessage !== 'undefined' ? YesMessage : 'Sim') : (typeof NoMessage !== 'undefined' ? NoMessage : 'Não')}</td>
+                    <td>${custoDisplay}</td>
+                    <td>${isentoBadge}</td>
                     <td>${(item.odometro || 0).toFixed(0)}</td>
                     <td>${item.local || ''}</td>
                     <td title="${item.observacoes || ''}">${(item.observacoes || '').substring(0, 30)}${item.observacoes && item.observacoes.length > 30 ? '...' : ''}</td>
@@ -169,6 +175,24 @@ document.querySelectorAll('#recharges-table th[data-sort]').forEach(th => {
 });
 
 // ==================== Modal de Edição ====================
+function updateModalIsentoState() {
+    const isentoCheck = document.getElementById('edit-isento');
+    const custoField = document.getElementById('edit-custo');
+    if (!isentoCheck || !custoField) return;
+    if (isentoCheck.checked) {
+        custoField.value = '0.00';
+        custoField.readOnly = true;
+        custoField.style.opacity = '0.6';
+        custoField.style.cursor = 'not-allowed';
+    } else {
+        custoField.readOnly = false;
+        custoField.style.opacity = '1';
+        custoField.style.cursor = '';
+    }
+}
+
+document.getElementById('edit-isento')?.addEventListener('change', updateModalIsentoState);
+
 document.getElementById('recharges-body')?.addEventListener('click', (e) => {
     if (e.target.classList.contains('btn-edit')) {
         const tr = e.target.closest('tr');
@@ -177,11 +201,13 @@ document.getElementById('recharges-body')?.addEventListener('click', (e) => {
         document.getElementById('edit-id').value = id;
         document.getElementById('edit-data').value = formatDateInput(utcDate || tr.children[0].textContent);
         document.getElementById('edit-kwh').value = tr.children[1].textContent;
-        document.getElementById('edit-custo').value = tr.children[2].textContent.replace(/[^\d.,]/g, '').replace(',', '.');
-        document.getElementById('edit-isento').checked = tr.children[3].textContent === 'Sim';
+        const isExempt = tr.children[3].textContent.includes('Isento') || tr.children[3].textContent.includes('Sim');
+        document.getElementById('edit-isento').checked = isExempt;
+        document.getElementById('edit-custo').value = isExempt ? '0.00' : tr.children[2].textContent.replace(/[^\d.,]/g, '').replace(',', '.');
         document.getElementById('edit-odometro').value = tr.children[4].textContent;
         document.getElementById('edit-local').value = tr.children[5].textContent;
         document.getElementById('edit-observacoes').value = tr.children[6].getAttribute('title');
+        updateModalIsentoState();
         const editModal = new bootstrap.Modal(document.getElementById('editModal'));
         editModal.show();
     }
@@ -191,13 +217,14 @@ document.getElementById('btn-save-edit')?.addEventListener('click', async () => 
     const id = document.getElementById('edit-id').value;
     const localData = document.getElementById('edit-data').value;
     const utcIso = window.DateTimeUtils ? window.DateTimeUtils.localInputToUtcIso(localData) : (localData ? new Date(localData).toISOString() : null);
+    const isExempt = document.getElementById('edit-isento').checked;
 
     const payload = {
         data: utcIso,
         kwh: parseFloat(document.getElementById('edit-kwh').value),
-        custo: parseFloat(document.getElementById('edit-custo').value),
+        custo: isExempt ? 0.0 : parseFloat(document.getElementById('edit-custo').value),
         odometro: parseFloat(document.getElementById('edit-odometro').value),
-        isento: document.getElementById('edit-isento').checked,
+        isento: isExempt,
         local: document.getElementById('edit-local').value,
         observacoes: document.getElementById('edit-observacoes').value
     };

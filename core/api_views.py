@@ -27,16 +27,47 @@ def api_logout(request):
     logout(request)
     return JsonResponse({"status": "success", "message": "Logged out"})
 
+@csrf_exempt
 @login_required
 def api_settings(request):
     try:
         settings = Settings.objects.get(user=request.user)
-        return JsonResponse({
-            "limit_kwh": settings.limit_kwh,
-            "limit_cost": settings.limit_cost
-        })
     except Settings.DoesNotExist:
-        return JsonResponse({"limit_kwh": 0, "limit_cost": 0})
+        settings = None
+
+    if request.method == "GET":
+        if settings:
+            return JsonResponse({
+                "preco_gasolina": settings.preco_gasolina,
+                "consumo_km_l": settings.consumo_km_l,
+                "preco_kwh_medio": settings.preco_kwh_medio,
+            })
+        return JsonResponse({
+            "preco_gasolina": None,
+            "consumo_km_l": None,
+            "preco_kwh_medio": 2.60,
+        })
+    elif request.method in ["POST", "PUT"]:
+        try:
+            body = json.loads(request.body)
+            if not settings:
+                settings = Settings(user=request.user, preco_gasolina=0.0, consumo_km_l=0.0, preco_kwh_medio=2.60)
+            if "preco_gasolina" in body and body["preco_gasolina"] is not None:
+                settings.preco_gasolina = float(body["preco_gasolina"])
+            if "consumo_km_l" in body and body["consumo_km_l"] is not None:
+                settings.consumo_km_l = float(body["consumo_km_l"])
+            if "preco_kwh_medio" in body and body["preco_kwh_medio"] is not None:
+                settings.preco_kwh_medio = float(body["preco_kwh_medio"])
+            settings.save()
+            return JsonResponse({
+                "status": "success",
+                "preco_gasolina": settings.preco_gasolina,
+                "consumo_km_l": settings.consumo_km_l,
+                "preco_kwh_medio": settings.preco_kwh_medio,
+            })
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+    return JsonResponse({"status": "error", "message": "Method not allowed"}, status=405)
 
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -118,12 +149,15 @@ def api_recharge_list(request):
             if tipo_recarga not in ['AC', 'DC']:
                 tipo_recarga = 'AC'
 
+            is_exempt = bool(body.get("isento", False))
+            custo_val = 0.0 if is_exempt else float(body.get("custo", 0))
+
             recharge = Recharge.objects.create(
                 user=request.user,
                 data=data_dt,
                 kwh=float(body.get("kwh", 0)),
-                custo=float(body.get("custo", 0)),
-                isento=body.get("isento", False),
+                custo=custo_val,
+                isento=is_exempt,
                 odometro=float(body.get("odometro", 0)),
                 observacoes=body.get("observacoes", ""),
                 local=body.get("local", ""),
@@ -169,8 +203,15 @@ def api_recharge_detail(request, pk):
             if "data" in body and body["data"]:
                 recharge.data = parse_iso_utc_datetime(body["data"])
             recharge.kwh = float(body.get("kwh", recharge.kwh))
-            recharge.custo = float(body.get("custo", recharge.custo))
-            recharge.isento = body.get("isento", recharge.isento)
+            
+            if "isento" in body:
+                recharge.isento = bool(body["isento"])
+            
+            if recharge.isento:
+                recharge.custo = 0.0
+            elif "custo" in body:
+                recharge.custo = float(body.get("custo", recharge.custo))
+
             recharge.odometro = float(body.get("odometro", recharge.odometro))
             recharge.observacoes = body.get("observacoes", recharge.observacoes)
             recharge.local = body.get("local", recharge.local)

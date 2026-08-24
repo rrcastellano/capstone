@@ -83,7 +83,13 @@
                         <span class="text-accent fw-bold">{{ r.kwh }} kWh</span>
                         {% if r.tipo_recarga %}<span class="badge bg-secondary ms-1 small">{{ r.tipo_recarga }}</span>{% endif %}
                     </td>
-                    <td class="fw-bold">{{ r.custo|brl }}</td>
+                    <td>
+                        {% if r.isento %}
+                        <span class="fw-bold">{{ 0|brl }}</span> <span class="badge bg-success ms-1"><i class="fas fa-leaf me-1"></i>{% trans "ISENTO" %}</span>
+                        {% else %}
+                        <span class="fw-bold">{{ r.custo|brl }}</span>
+                        {% endif %}
+                    </td>
                     <td class="d-none d-md-table-cell text-secondary">{{ r.odometro|default:"-" }} km</td>
                     <td>
                         {% if r.isento %}

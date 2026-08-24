@@ -217,6 +217,57 @@ msgstr "Paid"
 msgid "Nenhuma recarga registrada."
 msgstr "No recharges registered."
 
+msgid "Ocorreu um erro ao enviar sua mensagem. Tente novamente mais tarde."
+msgstr "An error occurred while sending your message. Please try again later."
+
+msgid "Preço de Referência do kWh (Isenções)"
+msgstr "kWh Reference Price (Exemptions)"
+
+msgid "Preço de Referência do kWh (Isenções) (R$)"
+msgstr "kWh Reference Price (Exemptions) (R$)"
+
+msgid "Usado para calcular o valor economizado nas recargas gratuitas/isentas."
+msgstr "Used to calculate the amount saved on free/exempt recharges."
+
+msgid "Custo Pago"
+msgstr "Paid Cost"
+
+msgid "Custo Pago (R$)"
+msgstr "Paid Cost (R$)"
+
+msgid "Economia por Isenção (R$)"
+msgstr "Savings from Exemption (R$)"
+
+msgid "Economia por Isenções"
+msgstr "Savings from Exemptions"
+
+msgid "Custo Cheio / Teórico"
+msgstr "Full / Theoretical Cost"
+
+msgid "Custo Cheio / Teórico (R$)"
+msgstr "Full / Theoretical Cost (R$)"
+
+msgid "Economia Real"
+msgstr "Real Savings"
+
+msgid "Economia Real (R$)"
+msgstr "Real Savings (R$)"
+
+msgid "Economia Real / Km"
+msgstr "Real Savings / Km"
+
+msgid "Economia se Pagasse Tudo"
+msgstr "Savings if Paid Full"
+
+msgid "Economia se Pagasse Tudo (R$)"
+msgstr "Savings if Paid Full (R$)"
+
+msgid "% Pago s/ Custo Cheio"
+msgstr "% Paid of Full Cost"
+
+msgid "ISENTO"
+msgstr "EXEMPT"
+
 msgid "Tem certeza que deseja excluir esta recarga?"
 msgstr "Are you sure you want to delete this recharge?"
 
@@ -231,9 +282,6 @@ msgstr "The CSV file must contain the following headers (order doesn't matter):"
 
 msgid "Selecione o arquivo CSV"
 msgstr "Select CSV File"
-
-msgid "Importar"
-msgstr "Import"
 
 msgid "Configurações da Conta"
 msgstr "Account Settings"

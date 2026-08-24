@@ -20,17 +20,33 @@ class ContactForm(forms.ModelForm):
         }
 
 class SettingsForm(forms.ModelForm):
+    preco_kwh_medio = forms.FloatField(
+        initial=2.60,
+        required=False,
+        label=_('Preço de Referência do kWh (Isenções) (R$)'),
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        help_text=_('Usado para calcular o valor economizado nas recargas gratuitas/isentas.')
+    )
+
     class Meta:
         model = Settings
-        fields = ['preco_gasolina', 'consumo_km_l']
+        fields = ['preco_gasolina', 'consumo_km_l', 'preco_kwh_medio']
         labels = {
             'preco_gasolina': _('Preço da Gasolina (R$)'),
             'consumo_km_l': _('Consumo Gasolina (Km/l)'),
+            'preco_kwh_medio': _('Preço de Referência do kWh (Isenções) (R$)'),
         }
         widgets = {
             'preco_gasolina': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'consumo_km_l': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+            'preco_kwh_medio': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
+
+    def clean_preco_kwh_medio(self):
+        val = self.cleaned_data.get('preco_kwh_medio')
+        if val is None:
+            return 2.60
+        return val
 
 
 from django.contrib.auth.forms import UserCreationForm
@@ -155,6 +171,9 @@ class RechargeForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        if cleaned_data.get('isento'):
+            cleaned_data['custo'] = 0.0
+
         antes = cleaned_data.get('bateria_antes')
         depois = cleaned_data.get('bateria_depois')
 

@@ -94,38 +94,35 @@
       </span>
       <i class="fas fa-gas-pump"></i>
       <h6>{% trans "Custo Gasolina / Km" %}</h6>
-      <p>{{ kpis.custo_gas_por_km | brl:3 }}</p>
-    </div>
-
-    <!-- Linha 3 -->
+      <p>{{ kpis.custo_gas_por_km | brl:3 }}<    <!-- Linha 3 -->
     <div class="kpi-card">
       <span class="kpi-info" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
-        title="{% trans 'Custo Total' %}" data-bs-content="{% trans 'Somatório dos custos (inclui isentas).' %}">
-        <i class="fas fa-info-circle"></i>
-      </span>
-      <i class="fas fa-wallet text-accent"></i>
-      <h6>{% trans "Custo Total" %}</h6>
-      <p>{{ kpis.custo_total | brl:2 }}</p>
-    </div>
-
-    <div class="kpi-card">
-      <span class="kpi-info" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
-        title="{% trans 'Recargas Isentas (R$)' %}" data-bs-content="{% trans 'Somatório do custo com isento.' %}">
-        <i class="fas fa-info-circle"></i>
-      </span>
-      <i class="fas fa-leaf text-accent"></i>
-      <h6>{% trans "Recargas Isentas (R$)" %}</h6>
-      <p>{{ kpis.custo_isentas | brl:2 }}</p>
-    </div>
-
-    <div class="kpi-card">
-      <span class="kpi-info" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
-        title="{% trans 'Recargas Pagas (R$)' %}" data-bs-content="{% trans 'Somatório do custo com isento.' %}">
+        title="{% trans 'Custo Pago' %}" data-bs-content="{% trans 'Somatório dos custos desembolsados (recargas pagas).' %}">
         <i class="fas fa-info-circle"></i>
       </span>
       <i class="fas fa-credit-card"></i>
-      <h6>{% trans "Recargas Pagas (R$)" %}</h6>
-      <p>{{ kpis.custo_pagas | brl:2 }}</p>
+      <h6>{% trans "Custo Pago" %}</h6>
+      <p>{{ kpis.custo_pago | brl:2 }}</p>
+    </div>
+
+    <div class="kpi-card">
+      <span class="kpi-info" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
+        title="{% trans 'Economia por Isenção (R$)' %}" data-bs-content="{% trans 'Valor economizado nas recargas isentas (kWh isentos × Preço ref. kWh).' %}">
+        <i class="fas fa-info-circle"></i>
+      </span>
+      <i class="fas fa-leaf text-accent"></i>
+      <h6>{% trans "Economia por Isenção (R$)" %}</h6>
+      <p class="text-accent">{{ kpis.economia_isencao | brl:2 }}</p>
+    </div>
+
+    <div class="kpi-card">
+      <span class="kpi-info" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
+        title="{% trans 'Custo Cheio / Teórico' %}" data-bs-content="{% trans 'Custo que teria sido pago sem as isenções (Custo Pago + Economia Isenção).' %}">
+        <i class="fas fa-info-circle"></i>
+      </span>
+      <i class="fas fa-wallet text-accent"></i>
+      <h6>{% trans "Custo Cheio / Teórico" %}</h6>
+      <p>{{ kpis.custo_cheio | brl:2 }}</p>
     </div>
 
     <div class="kpi-card">
@@ -141,44 +138,44 @@
     <!-- Linha 4 -->
     <div class="kpi-card">
       <span class="kpi-info" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
-        title="{% trans 'Economia (Custo)' %}"
-        data-bs-content="{% trans 'Custo simulado da gasolina − Custo total.' %}">
+        title="{% trans 'Economia Real' %}"
+        data-bs-content="{% trans 'Custo simulado da gasolina − Custo pago.' %}">
         <i class="fas fa-info-circle"></i>
       </span>
       <i class="fas fa-piggy-bank text-accent"></i>
-      <h6>{% trans "Economia (Custo)" %}</h6>
-      <p class="text-accent">{{ kpis.economia_total | brl:2 }}</p>
+      <h6>{% trans "Economia Real" %}</h6>
+      <p class="text-accent">{{ kpis.economia_real | brl:2 }}</p>
     </div>
 
     <div class="kpi-card">
       <span class="kpi-info" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
-        title="{% trans 'Economia (Custo) / Km' %}" data-bs-content="{% trans 'Economia total ÷ km rodados.' %}">
+        title="{% trans 'Economia Real / Km' %}" data-bs-content="{% trans 'Economia real ÷ km rodados.' %}">
         <i class="fas fa-info-circle"></i>
       </span>
       <i class="fas fa-chart-line text-accent"></i>
-      <h6>{% trans "Economia (Custo) / Km" %}</h6>
-      <p class="text-accent">{{ kpis.economia_total_por_km | brl:3 }}</p>
+      <h6>{% trans "Economia Real / Km" %}</h6>
+      <p class="text-accent">{{ kpis.economia_real_por_km | brl:3 }}</p>
     </div>
 
     <div class="kpi-card">
       <span class="kpi-info" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
-        title="{% trans 'Economia (Pagas)' %}"
-        data-bs-content="{% trans 'Custo simulado da gasolina − Custo das recargas pagas.' %}">
+        title="{% trans 'Economia se Pagasse Tudo' %}"
+        data-bs-content="{% trans 'Custo simulado da gasolina − Custo cheio (teórico).' %}">
         <i class="fas fa-info-circle"></i>
       </span>
       <i class="fas fa-hand-holding-usd text-accent"></i>
-      <h6>{% trans "Economia (Pagas)" %}</h6>
-      <p class="text-accent">{{ kpis.economia_pagas | brl:2 }}</p>
+      <h6>{% trans "Economia se Pagasse Tudo" %}</h6>
+      <p class="text-accent">{{ kpis.economia_se_pagasse_tudo | brl:2 }}</p>
     </div>
 
     <div class="kpi-card">
       <span class="kpi-info" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
-        title="{% trans 'Economia (Pagas) / Km' %}" data-bs-content="{% trans 'Economia (pagas) ÷ km rodados.' %}">
+        title="{% trans 'Economia por Isenções' %}" data-bs-content="{% trans 'Custo Cheio − Custo Pago (equivalente a kWh isentos × Preço ref. kWh).' %}">
         <i class="fas fa-info-circle"></i>
       </span>
-      <i class="fas fa-chart-bar text-accent"></i>
-      <h6>{% trans "Economia (Pagas) / Km" %}</h6>
-      <p class="text-accent">{{ kpis.economia_pagas_por_km | brl:3 }}</p>
+      <i class="fas fa-leaf text-accent"></i>
+      <h6>{% trans "Economia por Isenções" %}</h6>
+      <p class="text-accent">{{ kpis.economia_isencoes | brl:2 }}</p>
     </div>
   </div>
 
@@ -216,18 +213,18 @@
   window.CurrencySymbolBRL = "{% trans 'R$' %}";
   window.LocaleCodePtBR = "{% trans 'pt-BR' %}";
 
-  window.LabelTotalCostBRL = "{% trans 'Custo Total (R$)' %}";
-  window.LabelPaidRechargesBRL = "{% trans 'Recargas Pagas (R$)' %}";
-  window.LabelPercentPaidOverTotal = "{% trans '% Pagas sobre Total' %}";
+  window.LabelTotalCostBRL = "{% trans 'Custo Cheio / Teórico (R$)' %}";
+  window.LabelPaidRechargesBRL = "{% trans 'Custo Pago (R$)' %}";
+  window.LabelPercentPaidOverTotal = "{% trans '% Pago s/ Custo Cheio' %}";
   window.LabelKWhInMonth = "{% trans 'kWh no mês' %}";
   window.LabelConsumptionPer100Km = "{% trans 'Consumo / 100Km' %}";
   window.LabelKWh = "{% trans 'kWh' %}";
   window.LabelKWhPer100Km = "{% trans 'kWh / 100Km' %}";
   window.LabelKmInMonth = "{% trans 'Km no mês' %}";
   window.LabelKm = "{% trans 'Km' %}";
-  window.LabelTotalSavingsBRL = "{% trans 'Economia Total (R$)' %}";
-  window.LabelPaidSavingsBRL = "{% trans 'Economia (Pagas) (R$)' %}";
+  window.LabelTotalSavingsBRL = "{% trans 'Economia Real (R$)' %}";
+  window.LabelPaidSavingsBRL = "{% trans 'Economia se Pagasse Tudo (R$)' %}";
 </script>
 
-<script src="{% static 'core/js/dashboard_charts.js' %}?v=3"></script>
+<script src="{% static 'core/js/dashboard_charts.js' %}?v=4"></script>
 {% endblock %}

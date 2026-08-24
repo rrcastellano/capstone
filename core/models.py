@@ -21,6 +21,11 @@ class Recharge(models.Model):
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        if self.isento:
+            self.custo = 0.0
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.user.username} - {self.data}"
 
@@ -28,6 +33,7 @@ class Settings(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     preco_gasolina = models.FloatField()
     consumo_km_l = models.FloatField()
+    preco_kwh_medio = models.FloatField(default=2.60)
 
     def __str__(self):
         return f"Settings for {self.user.username}"

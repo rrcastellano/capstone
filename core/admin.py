@@ -44,5 +44,5 @@ class RechargeAdmin(admin.ModelAdmin):
 
 @admin.register(Settings)
 class SettingsAdmin(admin.ModelAdmin):
-    list_display = ('user', 'preco_gasolina', 'consumo_km_l')
+    list_display = ('user', 'preco_gasolina', 'consumo_km_l', 'preco_kwh_medio')
     search_fields = ('user__username',)

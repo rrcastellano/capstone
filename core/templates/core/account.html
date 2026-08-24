@@ -11,12 +11,23 @@
       <form method="POST" action="{% url 'settings' %}">
         {% csrf_token %}
         <div class="mb-3">
-          <label for="preco_gasolina" class="form-label">{% trans "Preço Gasolina (R$)" %}</label>
+          <label for="id_preco_gasolina" class="form-label">{% trans "Preço Gasolina (R$)" %}</label>
           {{ form.preco_gasolina }}
         </div>
         <div class="mb-3">
-          <label for="consumo_km_l" class="form-label">{% trans "Consumo Médio (km/l)" %}</label>
+          <label for="id_consumo_km_l" class="form-label">{% trans "Consumo Médio (km/l)" %}</label>
           {{ form.consumo_km_l }}
+        </div>
+        <div class="mb-3">
+          <label for="id_preco_kwh_medio" class="form-label">
+            {% trans "Preço de Referência do kWh (Isenções)" %}
+            <i class="fas fa-info-circle text-secondary ms-1" data-bs-toggle="tooltip" data-bs-placement="top"
+               title="{% trans 'Usado para calcular o valor economizado nas recargas gratuitas/isentas.' %}"></i>
+          </label>
+          {{ form.preco_kwh_medio }}
+          <div class="form-text text-secondary small">
+            {% trans "Usado para calcular o valor economizado nas recargas gratuitas/isentas." %}
+          </div>
         </div>
         <button type="submit" class="btn btn-primary mt-2">{% trans "Salvar Configurações" %}</button>
       </form>
@@ -41,6 +52,7 @@
   document.querySelector('form').addEventListener('submit', function (e) {
     const preco = document.getElementById('id_preco_gasolina');
     const consumo = document.getElementById('id_consumo_km_l');
+    const precoKwh = document.getElementById('id_preco_kwh_medio');
 
     function normalizeDecimal(input) {
       if (input && typeof input.value === 'string') {
@@ -50,6 +62,7 @@
 
     normalizeDecimal(preco);
     normalizeDecimal(consumo);
+    normalizeDecimal(precoKwh);
   });
 </script>
 {% endblock %}

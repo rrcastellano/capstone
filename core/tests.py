@@ -5,9 +5,9 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 from django.utils import timezone
 from core.models import Recharge, Settings
-from core.forms import RechargeForm
-from core.api_views import api_recharge_list, api_recharge_detail
-from core.views import api_recharges_monthly, manage_recharges, validate_csv_and_parse
+from core.forms import RechargeForm, SettingsForm
+from core.api_views import api_recharge_list, api_recharge_detail, api_settings
+from core.views import api_recharges_monthly, manage_recharges, validate_csv_and_parse, dashboard
 from core.templatetags.custom_filters import date_fmt
 import io
 
@@ -249,4 +249,215 @@ class TimezoneMigrationTests(TestCase):
         self.assertEqual(found[0]['latitude'], -23.55052)
         self.assertEqual(found[0]['longitude'], -46.63331)
         self.assertEqual(found[0]['tipo_recarga'], 'DC')
+
+    def test_exempt_recharge_always_zero_cost(self):
+        """Verifica que recarga isenta tem custo 0 no modelo, no form, no CSV e na API."""
+        # 1. Model direct creation
+        r = Recharge.objects.create(
+            user=self.user,
+            data=datetime.datetime(2026, 8, 19, 10, 0, 0, tzinfo=datetime.timezone.utc),
+            kwh=20.0,
+            custo=99.0, # Passa custo > 0 com isento=True
+            isento=True,
+            odometro=1000.0,
+            bateria_antes=20,
+            bateria_depois=80,
+            tipo_recarga='AC'
+        )
+        self.assertEqual(r.custo, 0.0)
+
+        # 2. RechargeForm
+        form = RechargeForm(data={
+            'data': '2026-08-19T10:00',
+            'kwh': 20.0,
+            'custo': 85.50,
+            'isento': True,
+            'odometro': 1000.0,
+            'bateria_antes': 20,
+            'bateria_depois': 80,
+            'tipo_recarga': 'AC'
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        saved_form_r = form.save(commit=False)
+        saved_form_r.user = self.user
+        saved_form_r.save()
+        self.assertEqual(saved_form_r.custo, 0.0)
+
+        # 3. CSV parsing
+        csv_content = (
+            "data,kwh,custo,isento,odometro,bateria_antes,bateria_depois,tipo_recarga\n"
+            "2026-08-19 10:00,20,50.0,true,1000,20,80,AC\n"
+        )
+        rows, errors = validate_csv_and_parse(io.BytesIO(csv_content.encode('utf-8')))
+        self.assertEqual(len(errors), 0)
+        self.assertEqual(rows[0]['custo'], 0.0)
+
+        # 4. API POST
+        req_post = self.factory.post(
+            '/api/recharges/',
+            data=json.dumps({
+                "data": "2026-08-19T10:00:00Z",
+                "kwh": 30.0,
+                "custo": 45.0,
+                "isento": True,
+                "odometro": 2000.0,
+                "bateria_antes": 10,
+                "bateria_depois": 70,
+                "tipo_recarga": "AC"
+            }),
+            content_type='application/json'
+        )
+        req_post.user = self.user
+        resp = api_recharge_list(req_post)
+        self.assertEqual(resp.status_code, 200)
+        rec_id = json.loads(resp.content)['id']
+        api_rec = Recharge.objects.get(pk=rec_id)
+        self.assertEqual(api_rec.custo, 0.0)
+        self.assertTrue(api_rec.isento)
+
+        # 5. API PUT (atualizando para isento)
+        paid_rec = Recharge.objects.create(
+            user=self.user,
+            data=datetime.datetime(2026, 8, 19, 12, 0, 0, tzinfo=datetime.timezone.utc),
+            kwh=15.0,
+            custo=30.0,
+            isento=False,
+            odometro=3000.0,
+            bateria_antes=30,
+            bateria_depois=80,
+            tipo_recarga='AC'
+        )
+        req_put = self.factory.put(
+            f'/api/recharges/{paid_rec.id}/',
+            data=json.dumps({"isento": True, "custo": 30.0}),
+            content_type='application/json'
+        )
+        req_put.user = self.user
+        resp_put = api_recharge_detail(req_put, pk=paid_rec.id)
+        self.assertEqual(resp_put.status_code, 200)
+        paid_rec.refresh_from_db()
+        self.assertTrue(paid_rec.isento)
+        self.assertEqual(paid_rec.custo, 0.0)
+
+    def test_settings_form_and_api(self):
+        """Verifica carregamento e persistência de preco_kwh_medio em SettingsForm e api_settings."""
+        # 1. Default value
+        settings = Settings.objects.create(
+            user=self.user,
+            preco_gasolina=5.89,
+            consumo_km_l=11.5
+        )
+        self.assertEqual(settings.preco_kwh_medio, 2.60)
+
+        # 2. Form save
+        form = SettingsForm(instance=settings, data={
+            'preco_gasolina': 6.20,
+            'consumo_km_l': 12.0,
+            'preco_kwh_medio': 2.85
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        saved_s = form.save()
+        self.assertEqual(saved_s.preco_kwh_medio, 2.85)
+
+        # 3. api_settings GET
+        req_get = self.factory.get('/api/settings/')
+        req_get.user = self.user
+        resp_get = api_settings(req_get)
+        self.assertEqual(resp_get.status_code, 200)
+        data_get = json.loads(resp_get.content)
+        self.assertEqual(data_get['preco_kwh_medio'], 2.85)
+        self.assertEqual(data_get['preco_gasolina'], 6.20)
+        self.assertEqual(data_get['consumo_km_l'], 12.0)
+
+        # 4. api_settings PUT
+        req_put = self.factory.put(
+            '/api/settings/',
+            data=json.dumps({'preco_kwh_medio': 3.10}),
+            content_type='application/json'
+        )
+        req_put.user = self.user
+        resp_put = api_settings(req_put)
+        self.assertEqual(resp_put.status_code, 200)
+        saved_s.refresh_from_db()
+        self.assertEqual(saved_s.preco_kwh_medio, 3.10)
+
+    def test_dashboard_and_monthly_metrics_formulas(self):
+        """
+        Verifica com exatidão as fórmulas de custos e economias no Dashboard e api_recharges_monthly:
+        - 1 recarga paga: 50 kWh, R$ 100,00, 1000 km -> 1300 km
+        - 1 recarga isenta: 20 kWh, R$ 0,00, 1300 km -> 1500 km (Total: 500 km rodados, 70 kWh)
+        - Settings: preco_gasolina = 6.00, consumo_km_l = 10.0, preco_kwh_medio = 2.60
+        - custoGasolina = (500 / 10) * 6.00 = 300.00
+        - custoPago = 100.00
+        - economiaIsencao = 20 * 2.60 = 52.00
+        - custoCheio = 100.00 + 52.00 = 152.00
+        - economiaReal = 300.00 - 100.00 = 200.00
+        - economiaSePagasseTudo = 300.00 - 152.00 = 148.00
+        - economiaIsencoes = 52.00
+        """
+        Settings.objects.create(
+            user=self.user,
+            preco_gasolina=6.00,
+            consumo_km_l=10.0,
+            preco_kwh_medio=2.60
+        )
+
+        Recharge.objects.create(
+            user=self.user,
+            data=datetime.datetime(2026, 8, 10, 10, 0, 0, tzinfo=datetime.timezone.utc),
+            kwh=50.0,
+            custo=100.0,
+            isento=False,
+            odometro=1000.0,
+            bateria_antes=10,
+            bateria_depois=80,
+            tipo_recarga='AC'
+        )
+
+        Recharge.objects.create(
+            user=self.user,
+            data=datetime.datetime(2026, 8, 15, 15, 0, 0, tzinfo=datetime.timezone.utc),
+            kwh=20.0,
+            custo=0.0,
+            isento=True,
+            odometro=1500.0,
+            bateria_antes=20,
+            bateria_depois=80,
+            tipo_recarga='DC'
+        )
+
+        # 1. Dashboard View
+        self.client.force_login(self.user)
+        resp_dash = self.client.get('/dashboard/')
+        self.assertEqual(resp_dash.status_code, 200)
+        kpis = resp_dash.context['kpis']
+
+        self.assertEqual(kpis['recargas'], 2)
+        self.assertEqual(kpis['recargas_isentas_qtd'], 1)
+        self.assertEqual(kpis['recargas_pagas_qtd'], 1)
+        self.assertEqual(kpis['total_km'], 500.0)
+        self.assertEqual(kpis['consumo_total_kwh'], 70.0)
+        self.assertEqual(kpis['custo_pago'], 100.0)
+        self.assertEqual(kpis['economia_isencao'], 52.0)
+        self.assertEqual(kpis['custo_cheio'], 152.0)
+        self.assertEqual(kpis['custo_gas_total'], 300.0)
+        self.assertEqual(kpis['economia_real'], 200.0)
+        self.assertEqual(kpis['economia_se_pagasse_tudo'], 148.0)
+        self.assertEqual(kpis['economia_isencoes'], 52.0)
+
+        # 2. Monthly API View
+        req_m = self.factory.get('/api/recharges/monthly/')
+        req_m.user = self.user
+        resp_m = api_recharges_monthly(req_m)
+        self.assertEqual(resp_m.status_code, 200)
+        data_m = json.loads(resp_m.content)
+
+        self.assertEqual(data_m['labels'], ['2026-08'])
+        self.assertEqual(data_m['custos']['pagas'], [100.0])
+        self.assertEqual(data_m['custos']['total'], [152.0])
+        self.assertEqual(data_m['economia']['total'], [200.0])
+        self.assertEqual(data_m['economia']['pagas'], [148.0])
+        self.assertEqual(data_m['economia']['isencao'], [52.0])
+        self.assertEqual(data_m['consumo'], [70.0])
+        self.assertEqual(data_m['km'], [500.0])
 

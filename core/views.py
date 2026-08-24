@@ -183,6 +183,8 @@ def validate_csv_and_parse(file_storage):
             
             isento_raw = (row.get('isento') or "").strip().lower()
             isento = isento_raw in ["true", "1", "sim", "yes", "y"]
+            if isento:
+                custo = 0.0
 
             bat_antes_raw = (row.get('bateria_antes') or "").replace('%', '').strip()
             bat_depois_raw = (row.get('bateria_depois') or "").replace('%', '').strip()
@@ -269,12 +271,13 @@ def bulk_recharge(request):
         count = 0
         for r in rows:
             try:
+                is_exempt = bool(r.get('isento'))
                 Recharge.objects.create(
                     user=request.user,
                     data=r['data'],
                     kwh=r['kwh'],
-                    custo=r['custo'],
-                    isento=r['isento'],
+                    custo=0.0 if is_exempt else r['custo'],
+                    isento=is_exempt,
                     odometro=r['odometro'],
                     observacoes=r.get('observacoes', ''),
                     local=r.get('local', ''),
@@ -448,10 +451,6 @@ def delete_recharge(request, pk):
 
 @login_required
 def dashboard(request):
-    from django.db.models import Sum, Min, Max
-    from collections import defaultdict
-    import datetime
-
     user = request.user
     
     # --- Fetch Data ---
@@ -463,10 +462,10 @@ def dashboard(request):
         settings = None
 
     config = settings
+    preco_kwh_medio = config.preco_kwh_medio if (config and config.preco_kwh_medio is not None) else 2.60
     
     # --- KPIs Calculation ---
     kwhs = [r.kwh for r in recargas]
-    custos = [r.custo for r in recargas]
     isentos = [r.isento for r in recargas]
     odometros = [r.odometro for r in recargas if r.odometro is not None]
 
@@ -477,18 +476,25 @@ def dashboard(request):
     if len(odometros) >= 2:
         total_km = odometros[-1] - odometros[0]
     elif len(odometros) == 1:
-        total_km = odometros[0] # Fallback logic from Flask? Flask logic: odometros[0] if odometros else 0
+        total_km = odometros[0]
     else:
         total_km = 0.0
         
-    custo_total = sum(custos)
-    custo_isentas = sum(c for c, i in zip(custos, isentos) if i)
-    custo_pagas = sum(c for c, i in zip(custos, isentos) if not i)
+    kwh_isentas = sum(r.kwh for r in recargas if r.isento)
     consumo_total_kwh = sum(kwhs)
     
+    # 1. Custo Pago (apenas recargas !isento)
+    custo_pago = sum(r.custo for r in recargas if not r.isento)
+    
+    # 2. Economia por Isenção (kWh isentos * preco_kwh_medio)
+    economia_isencao = kwh_isentas * preco_kwh_medio
+    
+    # 3. Custo Cheio / Teórico (custoPago + economiaIsencao)
+    custo_cheio = custo_pago + economia_isencao
+    
     consumo_por_100km = (consumo_total_kwh / total_km * 100) if total_km > 0 else 0
-    custo_medio_kwh = (custo_total / consumo_total_kwh) if consumo_total_kwh > 0 else 0
-    custo_medio_km = (custo_total / total_km) if total_km > 0 else 0
+    custo_medio_kwh = (custo_pago / consumo_total_kwh) if consumo_total_kwh > 0 else 0
+    custo_medio_km = (custo_pago / total_km) if total_km > 0 else 0
 
     # Config gasolina
     tem_config = config and config.preco_gasolina is not None and config.consumo_km_l and config.consumo_km_l > 0
@@ -498,17 +504,19 @@ def dashboard(request):
         consumo_km_l = config.consumo_km_l
         custo_gas_por_km = preco_gasolina / consumo_km_l
         custo_gas_total = (total_km / consumo_km_l) * preco_gasolina
-        economia_total = custo_gas_total - custo_total
-        economia_total_por_km = economia_total / total_km if total_km > 0 else 0
-        economia_pagas = custo_gas_total - custo_pagas
-        economia_pagas_por_km = economia_pagas / total_km if total_km > 0 else 0
+        # Economia Real = custoGasolina - custoPago
+        economia_real = custo_gas_total - custo_pago
+        economia_real_por_km = economia_real / total_km if total_km > 0 else 0
+        # Economia se Pagasse Tudo = custoGasolina - custoCheio
+        economia_se_pagasse_tudo = custo_gas_total - custo_cheio
+        economia_se_pagasse_tudo_por_km = economia_se_pagasse_tudo / total_km if total_km > 0 else 0
     else:
         custo_gas_por_km = None
         custo_gas_total = None
-        economia_total = None
-        economia_total_por_km = None
-        economia_pagas = None
-        economia_pagas_por_km = None
+        economia_real = None
+        economia_real_por_km = None
+        economia_se_pagasse_tudo = None
+        economia_se_pagasse_tudo_por_km = None
 
     kpis = {
         "recargas": total_recargas,
@@ -517,17 +525,25 @@ def dashboard(request):
         "total_km": total_km,
         "consumo_total_kwh": consumo_total_kwh,
         "consumo_por_100km": consumo_por_100km,
-        "custo_total": custo_total,
-        "custo_isentas": custo_isentas,
-        "custo_pagas": custo_pagas,
+        "custo_pago": custo_pago,
+        "custo_pagas": custo_pago,
+        "economia_isencao": economia_isencao,
+        "custo_isentas": economia_isencao,
+        "custo_cheio": custo_cheio,
+        "custo_total": custo_cheio,
         "custo_medio_kwh": custo_medio_kwh,
         "custo_medio_km": custo_medio_km,
         "custo_gas_por_km": custo_gas_por_km,
         "custo_gas_total": custo_gas_total,
-        "economia_total": economia_total,
-        "economia_total_por_km": economia_total_por_km,
-        "economia_pagas": economia_pagas,
-        "economia_pagas_por_km": economia_pagas_por_km,
+        "economia_real": economia_real,
+        "economia_total": economia_real,
+        "economia_real_por_km": economia_real_por_km,
+        "economia_total_por_km": economia_real_por_km,
+        "economia_se_pagasse_tudo": economia_se_pagasse_tudo,
+        "economia_pagas": economia_se_pagasse_tudo,
+        "economia_pagas_por_km": economia_se_pagasse_tudo_por_km,
+        "economia_isencoes": economia_isencao,
+        "preco_kwh_medio": preco_kwh_medio,
     }
 
     context = {
@@ -558,50 +574,57 @@ def api_recharges_monthly(request):
         
     preco_gasolina = config.preco_gasolina if config else None
     consumo_km_l = config.consumo_km_l if config else None
+    preco_kwh_medio = config.preco_kwh_medio if (config and config.preco_kwh_medio is not None) else 2.60
     tem_config = (preco_gasolina is not None) and (consumo_km_l is not None) and (consumo_km_l > 0)
 
     # Aggregation
     monthly = defaultdict(lambda: {
-        "custo_total": 0.0,
-        "custo_pagamento": 0.0,
-        "kwh": 0.0,
+        "custo_pago": 0.0,
+        "kwh_total": 0.0,
+        "kwh_isentas": 0.0,
         "odometros": []
     })
 
     for r in recargas:
         mes = _to_month(r.data)
-        monthly[mes]["custo_total"] += r.custo
-        monthly[mes]["kwh"] += r.kwh
+        monthly[mes]["kwh_total"] += r.kwh
+        if r.isento:
+            monthly[mes]["kwh_isentas"] += r.kwh
+        else:
+            monthly[mes]["custo_pago"] += r.custo
         if r.odometro is not None:
             monthly[mes]["odometros"].append(r.odometro)
-        if not r.isento:
-            monthly[mes]["custo_pagamento"] += r.custo
 
     meses_ord = sorted(monthly.keys())
     
     # Response Arrays
     labels = []
-    custos_total = []
-    custos_pagamento = []
-    custos_percentual = []
-    consumos = []
-    kms = []
-    economias_total = []
-    economias_pagamento = []
+    custos_cheio_list = []
+    custos_pago_list = []
+    custos_percentual_list = []
+    consumos_list = []
+    kms_list = []
+    economias_real_list = []
+    economias_se_pagasse_tudo_list = []
+    economias_isencao_list = []
     consumo_por_100km_list = []
 
     for idx, mes in enumerate(meses_ord):
         data_mes = monthly[mes]
         labels.append(mes)
         
-        ct = float(data_mes["custo_total"])
-        cp = float(data_mes["custo_pagamento"])
-        custos_total.append(round(ct, 2))
-        custos_pagamento.append(round(cp, 2))
-        custos_percentual.append(round((cp / ct * 100) if ct > 0 else 0.0, 2))
+        cp = float(data_mes["custo_pago"])
+        kwh_mes = round(float(data_mes["kwh_total"]), 2)
+        kwh_isentas_mes = float(data_mes["kwh_isentas"])
         
-        consumo_mes = round(float(data_mes["kwh"]), 2)
-        consumos.append(consumo_mes)
+        econ_isencao_mes = kwh_isentas_mes * preco_kwh_medio
+        cc = cp + econ_isencao_mes
+        
+        custos_cheio_list.append(round(cc, 2))
+        custos_pago_list.append(round(cp, 2))
+        custos_percentual_list.append(round((cp / cc * 100) if cc > 0 else 0.0, 2))
+        consumos_list.append(kwh_mes)
+        economias_isencao_list.append(round(econ_isencao_mes, 2))
         
         odos = sorted(data_mes["odometros"])
         if len(odos) >= 2:
@@ -614,37 +637,31 @@ def api_recharges_monthly(request):
                 km_mes = odos[0] - prev_last
             else:
                 km_mes = 0.0
-                # Could argue odos[0] if it's the very first month, but logic says diff.
-                # Use 0.0 to be safe
         else:
             km_mes = 0.0
             
-        # Prevent negative km if data is weird
         km_mes = max(km_mes, 0.0)
-        kms.append(round(km_mes, 2))
+        kms_list.append(round(km_mes, 2))
         
         if km_mes > 0:
-            consumo_por_100km_list.append(round((consumo_mes / km_mes) * 100, 2))
+            consumo_por_100km_list.append(round((kwh_mes / km_mes) * 100, 2))
         else:
             consumo_por_100km_list.append(0)
             
         if tem_config:
             custo_gas_mes = (km_mes / consumo_km_l) * preco_gasolina
-            economia_total_mes = custo_gas_mes - ct
-            economia_pagamento_mes = custo_gas_mes - cp
+            economia_real_mes = custo_gas_mes - cp
+            economia_se_pagasse_tudo_mes = custo_gas_mes - cc
         else:
-            economia_total_mes = 0.0
-            economia_pagamento_mes = 0.0
+            economia_real_mes = 0.0
+            economia_se_pagasse_tudo_mes = 0.0
             
-        economias_total.append(round(economia_total_mes, 2))
-        economias_pagamento.append(round(economia_pagamento_mes, 2))
+        economias_real_list.append(round(economia_real_mes, 2))
+        economias_se_pagasse_tudo_list.append(round(economia_se_pagasse_tudo_mes, 2))
         
-    # --- KPI Calculation (Copied from dashboard view) ---
+    # --- KPI Calculation ---
     kwhs = [r.kwh for r in recargas]
-    custos = [r.custo for r in recargas]
     isentos = [r.isento for r in recargas]
-    # We need odometros for total_km. Note: recargas is ordered by data.
-    # The monthly loop below handles granular data, but for total KPIs we need overall range.
     all_odometros = [r.odometro for r in recargas if r.odometro is not None]
 
     total_recargas = len(recargas)
@@ -653,37 +670,34 @@ def api_recharges_monthly(request):
     
     if len(all_odometros) >= 2:
         total_km = all_odometros[-1] - all_odometros[0]
-    elif len(all_odometros) == 1:
-         # Fallback logic if needed, but safe to say 0 or just the value? 
-         # Dashboard view logic seems to imply 0 if only 1 reading usually, or specific logic.
-         total_km = 0.0 
     else:
         total_km = 0.0
         
-    custo_total = sum(custos)
-    custo_isentas = sum(c for c, i in zip(custos, isentos) if i)
-    custo_pagas = sum(c for c, i in zip(custos, isentos) if not i)
+    kwh_isentas = sum(r.kwh for r in recargas if r.isento)
     consumo_total_kwh = sum(kwhs)
+    custo_pago = sum(r.custo for r in recargas if not r.isento)
+    economia_isencao = kwh_isentas * preco_kwh_medio
+    custo_cheio = custo_pago + economia_isencao
     
     consumo_por_100km = (consumo_total_kwh / total_km * 100) if total_km > 0 else 0
-    custo_medio_kwh = (custo_total / consumo_total_kwh) if consumo_total_kwh > 0 else 0
-    custo_medio_km = (custo_total / total_km) if total_km > 0 else 0
+    custo_medio_kwh = (custo_pago / consumo_total_kwh) if consumo_total_kwh > 0 else 0
+    custo_medio_km = (custo_pago / total_km) if total_km > 0 else 0
 
     # Config gasolina
     if tem_config:
         custo_gas_por_km = preco_gasolina / consumo_km_l
         custo_gas_total = (total_km / consumo_km_l) * preco_gasolina
-        economia_total = custo_gas_total - custo_total
-        economia_total_por_km = economia_total / total_km if total_km > 0 else 0
-        economia_pagas = custo_gas_total - custo_pagas
-        economia_pagas_por_km = economia_pagas / total_km if total_km > 0 else 0
+        economia_real = custo_gas_total - custo_pago
+        economia_real_por_km = economia_real / total_km if total_km > 0 else 0
+        economia_se_pagasse_tudo = custo_gas_total - custo_cheio
+        economia_se_pagasse_tudo_por_km = economia_se_pagasse_tudo / total_km if total_km > 0 else 0
     else:
         custo_gas_por_km = 0
         custo_gas_total = 0
-        economia_total = 0
-        economia_total_por_km = 0
-        economia_pagas = 0
-        economia_pagas_por_km = 0
+        economia_real = 0
+        economia_real_por_km = 0
+        economia_se_pagasse_tudo = 0
+        economia_se_pagasse_tudo_por_km = 0
 
     kpis = {
         "recargas": total_recargas,
@@ -692,32 +706,42 @@ def api_recharges_monthly(request):
         "total_km": total_km,
         "consumo_total_kwh": consumo_total_kwh,
         "consumo_por_100km": consumo_por_100km,
-        "custo_total": custo_total,
-        "custo_isentas": custo_isentas,
-        "custo_pagas": custo_pagas,
+        "custo_pago": custo_pago,
+        "custo_pagas": custo_pago,
+        "economia_isencao": economia_isencao,
+        "custo_isentas": economia_isencao,
+        "custo_cheio": custo_cheio,
+        "custo_total": custo_cheio,
         "custo_medio_kwh": custo_medio_kwh,
         "custo_medio_km": custo_medio_km,
         "custo_gas_por_km": custo_gas_por_km,
         "custo_gas_total": custo_gas_total,
-        "economia_total": economia_total,
-        "economia_total_por_km": economia_total_por_km,
-        "economia_pagas": economia_pagas,
-        "economia_pagas_por_km": economia_pagas_por_km,
+        "economia_real": economia_real,
+        "economia_total": economia_real,
+        "economia_real_por_km": economia_real_por_km,
+        "economia_total_por_km": economia_real_por_km,
+        "economia_se_pagasse_tudo": economia_se_pagasse_tudo,
+        "economia_pagas": economia_se_pagasse_tudo,
+        "economia_pagas_por_km": economia_se_pagasse_tudo_por_km,
+        "economia_isencoes": economia_isencao,
+        "preco_kwh_medio": preco_kwh_medio,
     }
 
     return JsonResponse({
         "kpis": kpis,
         "labels": labels,
         "custos": {
-            "total": custos_total,
-            "pagas": custos_pagamento,
-            "percentual": custos_percentual
+            "total": custos_cheio_list,
+            "pagas": custos_pago_list,
+            "percentual": custos_percentual_list,
+            "isencao": economias_isencao_list
         },
-        "consumo": consumos,
-        "km": kms,
+        "consumo": consumos_list,
+        "km": kms_list,
         "economia": {
-            "total": economias_total,
-            "pagas": economias_pagamento
+            "total": economias_real_list,
+            "pagas": economias_se_pagasse_tudo_list,
+            "isencao": economias_isencao_list
         },
         "consumo_por_100km": consumo_por_100km_list
     })

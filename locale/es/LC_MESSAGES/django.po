@@ -232,9 +232,6 @@ msgstr "El archivo CSV debe contener los siguientes encabezados (orden no import
 msgid "Selecione o arquivo CSV"
 msgstr "Seleccionar archivo CSV"
 
-msgid "Importar"
-msgstr "Importar"
-
 msgid "Configurações da Conta"
 msgstr "Configuraciones de la Cuenta"
 
@@ -345,3 +342,51 @@ msgstr "Seleccionar Archivo"
 
 msgid "Nenhum arquivo escolhido"
 msgstr "Ningún archivo seleccionado"
+
+msgid "Preço de Referência do kWh (Isenções)"
+msgstr "Precio de Referencia del kWh (Exenciones)"
+
+msgid "Preço de Referência do kWh (Isenções) (R$)"
+msgstr "Precio de Referencia del kWh (Exenciones) (R$)"
+
+msgid "Usado para calcular o valor economizado nas recargas gratuitas/isentas."
+msgstr "Utilizado para calcular el monto ahorrado en recargas gratuitas/exentas."
+
+msgid "Custo Pago"
+msgstr "Costo Pagado"
+
+msgid "Custo Pago (R$)"
+msgstr "Costo Pagado (R$)"
+
+msgid "Economia por Isenção (R$)"
+msgstr "Ahorro por Exención (R$)"
+
+msgid "Economia por Isenções"
+msgstr "Ahorro por Exenciones"
+
+msgid "Custo Cheio / Teórico"
+msgstr "Costo Total / Teórico"
+
+msgid "Custo Cheio / Teórico (R$)"
+msgstr "Costo Total / Teórico (R$)"
+
+msgid "Economia Real"
+msgstr "Ahorro Real"
+
+msgid "Economia Real (R$)"
+msgstr "Ahorro Real (R$)"
+
+msgid "Economia Real / Km"
+msgstr "Ahorro Real / Km"
+
+msgid "Economia se Pagasse Tudo"
+msgstr "Ahorro si Pagara Todo"
+
+msgid "Economia se Pagasse Tudo (R$)"
+msgstr "Ahorro si Pagara Todo (R$)"
+
+msgid "% Pago s/ Custo Cheio"
+msgstr "% Pagado s/ Costo Total"
+
+msgid "ISENTO"
+msgstr "EXENTO"

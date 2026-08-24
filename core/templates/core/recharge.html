@@ -62,6 +62,36 @@
 {% block scripts %}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    const isentoInput = document.getElementById('id_isento');
+    const custoInput = document.getElementById('id_custo');
+
+    function updateIsentoState() {
+      if (!isentoInput || !custoInput) return;
+      if (isentoInput.checked) {
+        if (custoInput.value && custoInput.value !== '0' && custoInput.value !== '0.00' && custoInput.value !== '0,00') {
+          custoInput.dataset.previousValue = custoInput.value;
+        }
+        custoInput.value = '0.00';
+        custoInput.readOnly = true;
+        custoInput.style.opacity = '0.6';
+        custoInput.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        custoInput.style.cursor = 'not-allowed';
+      } else {
+        custoInput.readOnly = false;
+        custoInput.style.opacity = '1';
+        custoInput.style.backgroundColor = '';
+        custoInput.style.cursor = '';
+        if (custoInput.value === '0.00' || custoInput.value === '0' || custoInput.value === '0,00') {
+          custoInput.value = custoInput.dataset.previousValue || '';
+        }
+      }
+    }
+
+    if (isentoInput) {
+      isentoInput.addEventListener('change', updateIsentoState);
+      updateIsentoState();
+    }
+
     const dataInput = document.getElementById('id_data');
     if (!dataInput) return;
 
@@ -75,6 +105,9 @@
     const formEl = dataInput.closest('form');
     if (formEl) {
       formEl.addEventListener('submit', function () {
+        if (isentoInput && isentoInput.checked && custoInput) {
+          custoInput.value = '0.00';
+        }
         if (dataInput.value && window.DateTimeUtils) {
           const utcIso = window.DateTimeUtils.localInputToUtcIso(dataInput.value);
           if (utcIso) {
